@@ -24,5 +24,6 @@ final readonly class MigrationConfig
 
     public function __construct(
         public string $databasePath,
-    ) {}
+    ) {
+    }
 }

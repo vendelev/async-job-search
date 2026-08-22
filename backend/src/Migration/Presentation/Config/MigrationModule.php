@@ -24,7 +24,8 @@ final readonly class MigrationModule implements Module
     public function __construct(
         private MigrationConfig $config,
         private array $providers,
-    ) {}
+    ) {
+    }
 
     /**
      * Регистрирует SQLite-мигратор и команду его запуска.

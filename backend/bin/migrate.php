@@ -11,5 +11,5 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 
 exit(Dic::run(
     module: new AppModule(MigrationConfig::fromEnvironment()),
-    main: static fn(MigrateCommand $command): int => $command->execute(),
+    main: static fn (MigrateCommand $command): int => $command->execute(),
 ));

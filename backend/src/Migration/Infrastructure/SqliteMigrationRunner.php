@@ -18,7 +18,8 @@ final readonly class SqliteMigrationRunner
     public function __construct(
         private PDO $pdo,
         private iterable $providers,
-    ) {}
+    ) {
+    }
 
     /**
      * Применяет все ещё не выполненные миграции в порядке их версий.
@@ -92,7 +93,7 @@ final readonly class SqliteMigrationRunner
 
         usort(
             $migrations,
-            static fn(Migration $left, Migration $right): int => $left->version <=> $right->version,
+            static fn (Migration $left, Migration $right): int => $left->version <=> $right->version,
         );
 
         return $migrations;

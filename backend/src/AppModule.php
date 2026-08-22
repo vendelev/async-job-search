@@ -18,7 +18,8 @@ final readonly class AppModule implements Module
 {
     public function __construct(
         private MigrationConfig $migrationConfig,
-    ) {}
+    ) {
+    }
 
     /**
      * Собирает технические модули приложения.

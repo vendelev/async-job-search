@@ -27,7 +27,9 @@
         "phpstan/phpstan-strict-rules": "^2.0.12",
         "phpunit/phpunit": "^13.3.1",
         "rector/rector": "^2.6.3",
-        "shipmonk/composer-dependency-analyser": "^1.8.4"
+        "shipmonk/composer-dependency-analyser": "^1.8.4",
+        "slevomat/coding-standard": "^8.31.1",
+        "squizlabs/php_codesniffer": "^4.0.4"
     },
     "autoload": {
         "psr-4": {
@@ -41,6 +43,7 @@
     },
     "config": {
         "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
             "ergebnis/composer-normalize": true,
             "phpstan/extension-installer": true
         },
@@ -54,8 +57,10 @@
         "fix": [
             "composer normalize --diff",
             "composer bump",
+            "vendor/bin/phpcbf",
             "vendor/bin/rector process"
         ],
+        "phpcs": "vendor/bin/phpcs",
         "phpstan": "vendor/bin/phpstan --memory-limit=-1",
         "phpunit": "php -d xdebug.mode=coverage vendor/bin/phpunit --coverage-text",
         "phpunit-html-coverage": "php -d xdebug.mode=coverage vendor/bin/phpunit --coverage-html storage/app/private/unit-coverage",
@@ -64,6 +69,7 @@
             "composer normalize --diff --dry-run",
             "composer bump --dry-run",
             "composer validate",
+            "composer phpcs",
             "composer rector",
             "composer phpstan",
             "php vendor/bin/composer-dependency-analyser",

@@ -11,7 +11,8 @@ final readonly class SqlitePdoFactory
 {
     public function __construct(
         private string $databasePath,
-    ) {}
+    ) {
+    }
 
     /**
      * Создаёт соединение с SQLite, подготавливая директорию для файла базы данных.

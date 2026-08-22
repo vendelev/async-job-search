@@ -47,7 +47,7 @@ final class SqliteMigrationRunnerTest extends TestCase
     #[Test]
     #[TestDox('Применяет миграции в порядке версий только один раз')]
     /**
-     * @throws Throwable Если миграция не может быть применена
+     * @throws \Throwable Если миграция не может быть применена
      */
     public function itApplies(): void
     {
@@ -79,15 +79,19 @@ final class SqliteMigrationRunnerTest extends TestCase
     #[Test]
     #[TestDox('Отклоняет миграции с повторяющейся версией')]
     /**
-     * @throws Throwable Если runner выбрасывает исключение, отличное от ожидаемого
+     * @throws \Throwable Если runner выбрасывает исключение, отличное от ожидаемого
      */
     public function itRejects(): void
     {
         $runner = new SqliteMigrationRunner(
             $this->pdo,
             [
-                $this->provider(new Migration('module_001_create_results', 'CREATE TABLE first_results (value INTEGER)')),
-                $this->provider(new Migration('module_001_create_results', 'CREATE TABLE second_results (value INTEGER)')),
+                $this->provider(
+                    new Migration('module_001_create_results', 'CREATE TABLE first_results (value INTEGER)')
+                ),
+                $this->provider(
+                    new Migration('module_001_create_results', 'CREATE TABLE second_results (value INTEGER)')
+                ),
             ],
         );
 
@@ -99,7 +103,7 @@ final class SqliteMigrationRunnerTest extends TestCase
     #[Test]
     #[TestDox('Не записывает миграцию при ошибке SQL')]
     /**
-     * @throws Throwable Если runner выбрасывает исключение, отличное от ожидаемого
+     * @throws \Throwable Если runner выбрасывает исключение, отличное от ожидаемого
      */
     public function itFails(): void
     {
@@ -122,13 +126,14 @@ final class SqliteMigrationRunnerTest extends TestCase
 
     private function provider(Migration ...$migrations): MigrationProvider
     {
-        return new readonly class(array_values($migrations)) implements MigrationProvider {
+        return new readonly class (array_values($migrations)) implements MigrationProvider {
             /**
              * @param list<Migration> $migrations
              */
             public function __construct(
                 private array $migrations,
-            ) {}
+            ) {
+            }
 
             public function migrations(): iterable
             {

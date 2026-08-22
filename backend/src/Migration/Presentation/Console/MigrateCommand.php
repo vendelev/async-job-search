@@ -10,7 +10,8 @@ final readonly class MigrateCommand
 {
     public function __construct(
         private SqliteMigrationRunner $runner,
-    ) {}
+    ) {
+    }
 
     /**
      * Запускает применение миграций.
