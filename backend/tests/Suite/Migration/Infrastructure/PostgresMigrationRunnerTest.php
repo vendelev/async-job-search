@@ -6,42 +6,41 @@ namespace Tests\Suite\Migration\Infrastructure;
 
 use App\Migration\Domain\Migration;
 use App\Migration\Domain\MigrationProvider;
-use App\Migration\Infrastructure\SqliteMigrationRunner;
+use App\Migration\Infrastructure\PostgresMigrationRunner;
 use PDO;
 use PDOException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\TestCase;
+use Random\RandomException;
 use RuntimeException;
+use Tests\Suite\AppTestCase;
 
-final class SqliteMigrationRunnerTest extends TestCase
+final class PostgresMigrationRunnerTest extends AppTestCase
 {
-    private PDO $pdo;
+    private string $schema;
 
-    private string $databasePath;
+    protected function usesTransaction(): bool
+    {
+        return false;
+    }
 
+    /**
+     * @throws RandomException Если не удалось сгенерировать имя временной схемы
+     */
     protected function setUp(): void
     {
-        $databasePath = tempnam(sys_get_temp_dir(), 'async-job-search-');
+        parent::setUp();
 
-        if ($databasePath === false) {
-            self::fail('Не удалось создать временный файл базы данных.');
-        }
-
-        $this->databasePath = $databasePath;
-        $this->pdo = new PDO(
-            'sqlite:' . $this->databasePath,
-            options: [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION],
-        );
+        $this->schema = 'migration_test_' . bin2hex(random_bytes(8));
+        $this->pdo->exec(sprintf('CREATE SCHEMA %s', $this->schema));
+        $this->pdo->exec(sprintf('SET search_path TO %s', $this->schema));
     }
 
     protected function tearDown(): void
     {
-        unset($this->pdo);
+        $this->pdo->exec(sprintf('DROP SCHEMA IF EXISTS %s CASCADE', $this->schema));
 
-        if (file_exists($this->databasePath)) {
-            unlink($this->databasePath);
-        }
+        parent::tearDown();
     }
 
     #[Test]
@@ -51,7 +50,7 @@ final class SqliteMigrationRunnerTest extends TestCase
      */
     public function itApplies(): void
     {
-        $runner = new SqliteMigrationRunner(
+        $runner = new PostgresMigrationRunner(
             $this->pdo,
             [$this->provider(
                 new Migration('module_002_insert_second', 'INSERT INTO results (value) VALUES (2)'),
@@ -83,14 +82,14 @@ final class SqliteMigrationRunnerTest extends TestCase
      */
     public function itRejects(): void
     {
-        $runner = new SqliteMigrationRunner(
+        $runner = new PostgresMigrationRunner(
             $this->pdo,
             [
                 $this->provider(
-                    new Migration('module_001_create_results', 'CREATE TABLE first_results (value INTEGER)')
+                    new Migration('module_001_create_results', 'CREATE TABLE first_results (value INTEGER)'),
                 ),
                 $this->provider(
-                    new Migration('module_001_create_results', 'CREATE TABLE second_results (value INTEGER)')
+                    new Migration('module_001_create_results', 'CREATE TABLE second_results (value INTEGER)'),
                 ),
             ],
         );
@@ -107,7 +106,7 @@ final class SqliteMigrationRunnerTest extends TestCase
      */
     public function itFails(): void
     {
-        $runner = new SqliteMigrationRunner(
+        $runner = new PostgresMigrationRunner(
             $this->pdo,
             [$this->provider(new Migration('module_001_broken_sql', 'CREATE TABLE'))],
         );

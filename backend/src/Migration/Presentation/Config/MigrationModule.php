@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Migration\Presentation\Config;
 
 use App\Migration\Domain\MigrationProvider;
-use App\Migration\Infrastructure\SqlitePdoFactory;
-use App\Migration\Infrastructure\SqliteMigrationRunner;
+use App\Migration\Infrastructure\PostgresMigrationRunner;
+use App\Migration\Infrastructure\PostgresPdoFactory;
 use App\Migration\Presentation\Console\MigrateCommand;
 use PDO;
 use Thesis\Dic;
@@ -28,23 +28,28 @@ final readonly class MigrationModule implements Module
     }
 
     /**
-     * Регистрирует SQLite-мигратор и команду его запуска.
+     * Регистрирует PostgreSQL-мигратор и команду его запуска.
      *
      * @return Ref<MigrateCommand>
      */
     public function configure(Dic $dic): Ref
     {
         $pdoFactory = $dic
-            ->object(SqlitePdoFactory::class)
+            ->object(PostgresPdoFactory::class)
             ->doNotAutowire()
-            ->arg('databasePath', $this->config->databasePath);
+            ->args([
+                'dsn' => $this->config->dsn,
+                'user' => $this->config->user,
+                'password' => $this->config->password,
+                'schema' => $this->config->schema,
+            ]);
 
         $pdo = $dic
             ->object(PDO::class, [$pdoFactory, 'create'])
             ->doNotAutowire();
 
         $runner = $dic
-            ->object(SqliteMigrationRunner::class)
+            ->object(PostgresMigrationRunner::class)
             ->doNotAutowire()
             ->args([
                 'pdo' => $pdo,

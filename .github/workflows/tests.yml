@@ -7,6 +7,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_DB: async_job_search
+      POSTGRES_PASSWORD: async_job_search
+      POSTGRES_USER: async_job_search
 
     steps:
       - uses: actions/checkout@v4

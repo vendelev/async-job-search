@@ -10,7 +10,7 @@ use PDO;
 use RuntimeException;
 use Throwable;
 
-final readonly class SqliteMigrationRunner
+final readonly class PostgresMigrationRunner
 {
     /**
      * @param iterable<MigrationProvider> $providers
@@ -25,7 +25,7 @@ final readonly class SqliteMigrationRunner
      * Применяет все ещё не выполненные миграции в порядке их версий.
      *
      * @throws RuntimeException Если опубликованы миграции с одинаковой версией
-     * @throws Throwable Если provider или SQLite не смогли обработать миграцию
+     * @throws Throwable Если provider или PostgreSQL не смогли обработать миграцию
      */
     public function migrate(): void
     {
@@ -33,7 +33,7 @@ final readonly class SqliteMigrationRunner
             <<<'SQL'
                 CREATE TABLE IF NOT EXISTS schema_migrations (
                     version TEXT PRIMARY KEY,
-                    applied_at TEXT NOT NULL
+                    applied_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
                 )
                 SQL,
         );
@@ -49,12 +49,9 @@ final readonly class SqliteMigrationRunner
                 $this->pdo->exec($migration->sql);
 
                 $statement = $this->pdo->prepare(
-                    'INSERT INTO schema_migrations (version, applied_at) VALUES (:version, :applied_at)',
+                    'INSERT INTO schema_migrations (version) VALUES (:version)',
                 );
-                $statement->execute([
-                    'version' => $migration->version,
-                    'applied_at' => gmdate('c'),
-                ]);
+                $statement->execute(['version' => $migration->version]);
 
                 $this->pdo->commit();
             } catch (Throwable $error) {

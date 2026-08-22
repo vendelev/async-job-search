@@ -9,6 +9,7 @@ return new Configuration()
         ],
         [ErrorType::SHADOW_DEPENDENCY]
     )
+    ->ignoreErrorsOnExtensions(['ext-pdo_pgsql', 'ext-pdo_sqlite'], [ErrorType::UNUSED_DEPENDENCY])
     ->ignoreErrorsOnPackages(
         [
             'amphp/amp',
@@ -17,6 +18,14 @@ return new Configuration()
             'psr/log',
             'revolt/event-loop',
             'sentry/sentry',
+            'amphp/http-server',
+            'amphp/http-server-router',
+            'amphp/postgres',
+            'thesis/clock',
+            'thesis/message',
+            'thesis/message-bus',
+            'thesis/pgmq',
+            'thesis/transaction',
         ],
         [ErrorType::UNUSED_DEPENDENCY]
     );

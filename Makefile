@@ -14,10 +14,8 @@ help:
 	@$(TAB) make up - Запустить daemon в фоне.
 	@$(TAB) make down - Остановить и удалить контейнеры.
 	@$(TAB) make restart - Перезапустить daemon.
-	@$(TAB) make daemon - Запустить daemon в текущем терминале.
-	@$(TAB) make migrate - Применить миграции SQLite.
-	@$(TAB) make remigrate - Удалить SQLite-базу и применить миграции заново.
-	@$(TAB) make search-once - Выполнить один поиск вакансий.
+	@$(TAB) make migrate - Применить миграции PostgreSQL.
+	@$(TAB) make remigrate - Удалить PostgreSQL volume и применить миграции заново.
 	@$(call BR)
 	@$(call H1,PHP)
 	@$(TAB) make php-test - Выполнить Composer-проверки.
@@ -34,37 +32,33 @@ composer-install:
 	$(DOCKER_COMPOSE) run --rm app composer install
 
 up:
-	$(DOCKER_COMPOSE) up --detach app
+	$(DOCKER_COMPOSE) up -d
 
 down:
 	$(DOCKER_COMPOSE) down
 
 restart: down up
 
-daemon:
-	$(DOCKER_COMPOSE) up app
-
 migrate:
-	$(DOCKER_COMPOSE) run --rm app php bin/migrate.php
+	$(DOCKER_COMPOSE) exec -it app php bin/migrate.php
 
 remigrate:
-	$(DOCKER_COMPOSE) run --rm app sh -c 'rm -f "$$SQLITE_DATABASE_PATH" "$$SQLITE_DATABASE_PATH-shm" "$$SQLITE_DATABASE_PATH-wal" && php bin/migrate.php'
-
-search-once:
-	$(DOCKER_COMPOSE) run --rm app php bin/search-once.php
+	$(DOCKER_COMPOSE) down --volumes
+	$(DOCKER_COMPOSE) up -d app
+	$(DOCKER_COMPOSE) exec -it app php bin/migrate.php
 
 php-test:
-	$(DOCKER_COMPOSE) run --rm app composer test
+	$(DOCKER_COMPOSE) exec -it app composer test
 
 php-unit-tests:
 ifeq ($(TEST),)
-	$(DOCKER_COMPOSE) run --rm app composer phpunit
+	$(DOCKER_COMPOSE) exec -it app composer phpunit
 else
-	$(DOCKER_COMPOSE) run --rm app composer phpunit -- $(TEST)
+	$(DOCKER_COMPOSE) exec -it app composer phpunit -- $(TEST)
 endif
 
 php-cli:
-	$(DOCKER_COMPOSE) run --rm app bash
+	$(DOCKER_COMPOSE) exec -it app bash
 
 php-log:
 	$(DOCKER_COMPOSE) logs app

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Migration\Presentation\Console;
 
-use App\Migration\Infrastructure\SqliteMigrationRunner;
+use App\Migration\Infrastructure\PostgresMigrationRunner;
 
 final readonly class MigrateCommand
 {
     public function __construct(
-        private SqliteMigrationRunner $runner,
+        private PostgresMigrationRunner $runner,
     ) {
     }
 

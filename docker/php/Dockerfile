@@ -24,7 +24,7 @@ RUN <<EOF bash
   locale-gen en_US.UTF-8
   dpkg-reconfigure --frontend=noninteractive locales
 
-  install-php-extensions @composer pdo_sqlite xdebug xhprof
+  install-php-extensions @composer pgsql pdo_pgsql pdo_sqlite xdebug intl pcntl sockets
 
   apt-get clean autoclean
   apt-get autoremove --yes
@@ -32,9 +32,13 @@ RUN <<EOF bash
 EOF
 
 ARG UID=1000
-ARG GID=1000
 ENV UID=${UID}
+
+ARG GID=1000
 ENV GID=${GID}
+
+ARG XDEBUG_MODE=coverage,debug
+ENV XDEBUG_MODE=$XDEBUG_MODE
 
 RUN <<EOF bash
   set -euox pipefail
