@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    bootstrap="vendor/autoload.php"
+    cacheDirectory="storage/temp/phpunit"
+    colors="true">
+    <testsuites>
+        <testsuite name="suite">
+            <directory>tests/Suite</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>src</directory>
+        </include>
+    </source>
+    <coverage
+        ignoreDeprecatedCodeUnits="true"
+        disableCodeCoverageIgnore="true">
+        <report>
+            <text outputFile="storage/temp/phpunit/coverage.txt" showOnlySummary="true"/>
+            <cobertura outputFile="storage/temp/phpunit/cobertura.xml"/>
+            <html outputDirectory="storage/temp/phpunit/html" />
+        </report>
+    </coverage>
+    <logging>
+        <junit outputFile="storage/temp/phpunit/junit.xml"/>
+    </logging>
+</phpunit>

@@ -2,7 +2,7 @@ include .env
 
 DOCKER_COMPOSE = docker compose
 
-.PHONY: help build install composer-install up down restart daemon search-once php-test php-unit-tests php-cli php-log
+.PHONY: help build install composer-install up down restart daemon migrate remigrate search-once php-test php-unit-tests php-cli php-log
 
 H1 = echo === ${1} ===
 BR = echo
@@ -15,6 +15,8 @@ help:
 	@$(TAB) make down - Остановить и удалить контейнеры.
 	@$(TAB) make restart - Перезапустить daemon.
 	@$(TAB) make daemon - Запустить daemon в текущем терминале.
+	@$(TAB) make migrate - Применить миграции SQLite.
+	@$(TAB) make remigrate - Удалить SQLite-базу и применить миграции заново.
 	@$(TAB) make search-once - Выполнить один поиск вакансий.
 	@$(call BR)
 	@$(call H1,PHP)
@@ -41,6 +43,12 @@ restart: down up
 
 daemon:
 	$(DOCKER_COMPOSE) up app
+
+migrate:
+	$(DOCKER_COMPOSE) run --rm app php bin/migrate.php
+
+remigrate:
+	$(DOCKER_COMPOSE) run --rm app sh -c 'rm -f "$$SQLITE_DATABASE_PATH" "$$SQLITE_DATABASE_PATH-shm" "$$SQLITE_DATABASE_PATH-wal" && php bin/migrate.php'
 
 search-once:
 	$(DOCKER_COMPOSE) run --rm app php bin/search-once.php
