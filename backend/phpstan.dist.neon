@@ -1,0 +1,32 @@
+parameters:
+    level: 8
+    paths:
+        - src/
+        - tests/
+    tmpDir: storage/temp/phpstan
+    exceptions:
+        # https://phpstan.org/blog/bring-your-exceptions-under-control
+        check:
+            missingCheckedExceptionInThrows: true
+            tooWideThrowType: true
+        uncheckedExceptionClasses:
+            - Symfony\Component\Console\Exception\CommandNotFoundException
+            - Symfony\Component\Serializer\Exception\ExceptionInterface
+            - GuzzleHttp\Exception\GuzzleException
+            - RuntimeException
+            - InvalidArgumentException
+            - ValueError
+            - TypeError
+    strictRules:
+        allRules: false
+        dynamicCallOnStaticMethod: true
+        overwriteVariablesWithLoop: true
+services:
+   -
+       class: Tests\Architecture\CleanStructureTest
+       tags:
+           - phpat.test
+   -
+       class: Tests\Architecture\CleanArchitectureTest
+       tags:
+           - phpat.test

@@ -1,0 +1,10 @@
+services:
+  app:
+    build:
+      context: ./docker/php
+    working_dir: /var/www
+    init: true
+    stop_grace_period: 30s
+    volumes:
+      - ./backend:/var/www
+    command: ["php", "bin/daemon.php"]

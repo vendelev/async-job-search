@@ -1,0 +1,5 @@
+/.env
+/.idea
+/.opencode/
+/opencode.json
+docker-compose.override.yml
