@@ -1,0 +1,29 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build application image
+        run: docker compose build
+
+      - name: Install dependencies
+        run: docker compose run --rm --user root app composer install --no-interaction --prefer-dist
+
+      - name: Run checks and tests
+        run: docker compose run --rm --user root app composer test
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: backend/storage/temp/phpunit
+          if-no-files-found: warn

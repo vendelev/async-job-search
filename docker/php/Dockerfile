@@ -24,7 +24,7 @@ RUN <<EOF bash
   locale-gen en_US.UTF-8
   dpkg-reconfigure --frontend=noninteractive locales
 
-  install-php-extensions @composer xdebug xhprof
+  install-php-extensions @composer pdo_sqlite xdebug xhprof
 
   apt-get clean autoclean
   apt-get autoremove --yes

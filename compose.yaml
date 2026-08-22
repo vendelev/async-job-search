@@ -7,4 +7,6 @@ services:
     stop_grace_period: 30s
     volumes:
       - ./backend:/var/www
+    environment:
+      SQLITE_DATABASE_PATH: ${SQLITE_DATABASE_PATH:-storage/app/database.sqlite}
     command: ["php", "bin/daemon.php"]
