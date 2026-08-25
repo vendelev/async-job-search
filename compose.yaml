@@ -9,7 +9,9 @@ services:
     volumes:
       - ./backend:/var/www
     environment:
-      DATABASE_DSN: pgsql:host=postgres;port=5432;dbname=${POSTGRES_DB:-async_job_search}
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${POSTGRES_DB:-async_job_search}
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
       DATABASE_USER: ${POSTGRES_USER:-async_job_search}
       HTTP_HOST: 0.0.0.0
@@ -20,6 +22,7 @@ services:
     command: ["php", "bin/daemon.php"]
   postgres:
     image: ghcr.io/pgmq/pg18-pgmq:v1.10.0
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-async_job_search}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}

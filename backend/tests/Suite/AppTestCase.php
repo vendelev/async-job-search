@@ -5,15 +5,22 @@ declare(strict_types=1);
 namespace Tests\Suite;
 
 use App\AppModule;
-use App\Migration\Presentation\Config\MigrationConfig;
 use App\Migration\Presentation\Console\MigrateCommand;
-use PDO;
+use App\Platform\Postgres\Domain\PostgresDatabase;
+use App\Platform\Postgres\Domain\PostgresExecutor;
+use App\Platform\Postgres\Infrastructure\AmpPostgresTransaction;
+use App\Platform\Postgres\Presentation\Config\PostgresConfig;
+use App\Platform\Postgres\Presentation\Config\PostgresModule;
+use Closure;
 use PHPUnit\Framework\TestCase;
 use Thesis\Dic;
+use Throwable;
+
+use function Amp\async;
 
 abstract class AppTestCase extends TestCase
 {
-    protected PDO $pdo;
+    protected PostgresDatabase $database;
 
     private static bool $databaseMigrated = false;
 
@@ -28,14 +35,10 @@ abstract class AppTestCase extends TestCase
             return;
         }
 
-        Dic::run(
-            new AppModule(new MigrationConfig(
-                self::environment('DATABASE_DSN'),
-                self::environment('DATABASE_USER'),
-                self::environment('DATABASE_PASSWORD'),
-            )),
+        async(static fn (): int => Dic::run(
+            new AppModule(self::postgresConfig()),
             static fn (MigrateCommand $command): int => $command->execute(),
-        );
+        ))->await();
 
         self::$databaseMigrated = true;
     }
@@ -44,43 +47,34 @@ abstract class AppTestCase extends TestCase
     {
         parent::setUp();
 
-        $this->pdo = new PDO(
-            self::environment('DATABASE_DSN'),
-            self::environment('DATABASE_USER'),
-            self::environment('DATABASE_PASSWORD'),
-            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION],
+        $this->database = Dic::run(
+            new PostgresModule(self::postgresConfig()),
+            static fn (PostgresDatabase $database): PostgresDatabase => $database,
         );
-
-        if ($this->usesTransaction()) {
-            $this->pdo->beginTransaction();
-        }
-    }
-
-    protected function tearDown(): void
-    {
-        if ($this->pdo->inTransaction()) {
-            $this->pdo->rollBack();
-        }
-
-        parent::tearDown();
     }
 
     /**
-     * Тесты мигратора управляют транзакциями самостоятельно.
+     * @param Closure(PostgresExecutor): void $test
+     *
+     * @throws Throwable Если callback или PostgreSQL завершились ошибкой
      */
-    protected function usesTransaction(): bool
+    protected function withinTransaction(Closure $test): void
     {
-        return true;
+        async(function () use ($test): void {
+            $transaction = $this->database->beginTransaction();
+
+            try {
+                $test(new AmpPostgresTransaction($transaction));
+            } finally {
+                if ($transaction->isActive()) {
+                    $transaction->rollback();
+                }
+            }
+        })->await();
     }
 
-    private static function environment(string $name): string
+    private static function postgresConfig(): PostgresConfig
     {
-        $value = getenv($name);
-
-        if (!is_string($value) || $value === '') {
-            self::fail(sprintf('Для интеграционного теста необходима переменная %s.', $name));
-        }
-
-        return $value;
+        return PostgresConfig::fromEnvironment();
     }
 }

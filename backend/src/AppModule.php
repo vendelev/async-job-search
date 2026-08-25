@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\Migration\Presentation\Config\MigrationConfig;
 use App\Migration\Presentation\Config\MigrationModule;
 use App\Migration\Presentation\Console\MigrateCommand;
+use App\Platform\EventStore\Presentation\Config\EventStoreMigrationModule;
+use App\Platform\Postgres\Presentation\Config\PostgresConfig;
+use App\Platform\Postgres\Presentation\Config\PostgresModule;
 use Thesis\Dic;
 use Thesis\Dic\Module;
 use Thesis\Dic\Ref;
@@ -17,7 +19,7 @@ use Thesis\Dic\Ref;
 final readonly class AppModule implements Module
 {
     public function __construct(
-        private MigrationConfig $migrationConfig,
+        private PostgresConfig $postgresConfig,
     ) {
     }
 
@@ -26,6 +28,9 @@ final readonly class AppModule implements Module
      */
     public function configure(Dic $dic): mixed
     {
-        return $dic->import(new MigrationModule($this->migrationConfig, []));
+        $database = $dic->import(new PostgresModule($this->postgresConfig));
+        $eventStoreMigrations = $dic->import(new EventStoreMigrationModule());
+
+        return $dic->import(new MigrationModule($database, [$eventStoreMigrations]));
     }
 }

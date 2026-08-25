@@ -24,7 +24,7 @@ RUN <<EOF bash
   locale-gen en_US.UTF-8
   dpkg-reconfigure --frontend=noninteractive locales
 
-  install-php-extensions @composer pgsql pdo_pgsql pdo_sqlite xdebug intl pcntl sockets
+  install-php-extensions @composer pgsql xdebug intl pcntl sockets
 
   apt-get clean autoclean
   apt-get autoremove --yes
