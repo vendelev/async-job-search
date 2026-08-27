@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Suite;
 
 use App\AppModule;
-use App\Migration\Presentation\Console\MigrateCommand;
+use App\Platform\Migration\Presentation\Console\MigrateCommand;
 use App\Platform\Postgres\Domain\PostgresDatabase;
 use App\Platform\Postgres\Domain\PostgresExecutor;
 use App\Platform\Postgres\Infrastructure\AmpPostgresTransaction;

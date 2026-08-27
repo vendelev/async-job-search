@@ -6,6 +6,7 @@ namespace App\Platform\Postgres\Infrastructure;
 
 use Amp\Postgres\PostgresResult;
 use Amp\Postgres\PostgresTransaction;
+use Amp\Sql\SqlException;
 use Amp\Sql\SqlQueryError;
 use App\Platform\Postgres\Domain\PostgresExecutor;
 
@@ -19,6 +20,7 @@ final readonly class AmpPostgresTransaction implements PostgresExecutor
     /**
      * @param array<string, mixed> $params
      *
+     * @throws SqlException Если SQL-запрос содержит ошибку
      * @throws SqlQueryError Если SQL-запрос содержит ошибку
      */
     public function execute(string $sql, array $params = []): PostgresResult

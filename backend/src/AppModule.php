@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\Migration\Presentation\Config\MigrationModule;
-use App\Migration\Presentation\Console\MigrateCommand;
 use App\Platform\EventStore\Presentation\Config\EventStoreMigrationModule;
+use App\Platform\Migration\Presentation\Config\MigrationModule;
+use App\Platform\Migration\Presentation\Console\MigrateCommand;
 use App\Platform\Postgres\Presentation\Config\PostgresConfig;
 use App\Platform\Postgres\Presentation\Config\PostgresModule;
 use Thesis\Dic;
