@@ -9,6 +9,7 @@ use App\Platform\Migration\Presentation\Config\MigrationModule;
 use App\Platform\Migration\Presentation\Console\MigrateCommand;
 use App\Platform\Postgres\Presentation\Config\PostgresConfig;
 use App\Platform\Postgres\Presentation\Config\PostgresModule;
+use App\VacancyDiscovery\Presentation\Config\VacancyDiscoveryMigrationModule;
 use Thesis\Dic;
 use Thesis\Dic\Module;
 use Thesis\Dic\Ref;
@@ -28,9 +29,12 @@ final readonly class AppModule implements Module
      */
     public function configure(Dic $dic): mixed
     {
-        $database = $dic->import(new PostgresModule($this->postgresConfig));
-        $eventStoreMigrations = $dic->import(new EventStoreMigrationModule());
-
-        return $dic->import(new MigrationModule($database, [$eventStoreMigrations]));
+        return $dic->import(new MigrationModule(
+            $dic->import(new PostgresModule($this->postgresConfig)),
+            [
+                $dic->import(new EventStoreMigrationModule()),
+                $dic->import(new VacancyDiscoveryMigrationModule())
+            ]
+        ));
     }
 }
