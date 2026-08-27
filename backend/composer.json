@@ -16,6 +16,7 @@
         "amphp/http-server-router": "^2.0",
         "amphp/postgres": "^2.2.1",
         "monolog/monolog": "^3.10",
+        "psr/clock": "^1.0",
         "psr/log": "^3.0.2",
         "ramsey/uuid": "^4.9.3",
         "revolt/event-loop": "^1.0.9",

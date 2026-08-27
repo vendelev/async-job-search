@@ -14,13 +14,10 @@ return new Configuration()
         [
             'amphp/http-client',
             'monolog/monolog',
-            'psr/log',
             'revolt/event-loop',
             'sentry/sentry',
             'amphp/http-server',
             'amphp/http-server-router',
-            'thesis/clock',
-            'thesis/message',
             'thesis/message-bus',
             'thesis/pgmq',
             'thesis/transaction',

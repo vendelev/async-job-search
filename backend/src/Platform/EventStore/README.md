@@ -41,13 +41,14 @@ EventStore/
 `EventStoreModule` экспортирует только `Ref<EventStore>`.
 Он не импортируется `AppModule`, пока нет runtime-потребителя хранилища.
 
-Когда будет реализован `EventBus`, `AppModule` должен импортировать
-`EventStoreModule`, сохранить его `Ref<EventStore>` и передать этот export в `EventBusModule`. 
-EventBus будет добавлять событие в EventStore перед его публикацией.
+`EventBusModule` уже принимает `Ref<EventStore>` и добавляет событие в журнал
+до запуска его подписчиков. Когда появится первый runtime-потребитель шины,
+`AppModule` импортирует оба модуля и передаст export `EventStore` в `EventBusModule`.
 
 `EventStoreMigrationModule` экспортирует отдельно `Ref<MigrationProvider>`.
 Он уже импортируется `AppModule` и передаётся в `MigrationModule`.
 
 ## Ограничения
 
-- EventStore не обеспечивает атомарность между будущими append и публикацией события в шину.
+- EventStore не обеспечивает атомарность между append и запуском обработчиков
+  in-memory шины.
