@@ -48,7 +48,7 @@ flowchart LR
 Модуль, которому нужна собственная PostgreSQL-схема, реализует `MigrationProvider` в своей Infrastructure и 
 экспортирует его из своего DI-модуля. 
 Например, `EventStoreMigrationModule` экспортирует `EventStoreMigrationProvider`; 
-корневой `AppModule` передаёт этот provider в `MigrationModule`.
+корневой `MigrateModule` передаёт этот provider в `MigrationModule`.
 
 ## Бизнес-логика
 
@@ -62,7 +62,7 @@ flowchart LR
 
 ## Точки входа
 
-`backend/bin/migrate.php` создаёт `AppModule` с конфигурацией PostgreSQL и передаёт выполнение `MigrateCommand` 
+`backend/bin/migrate.php` создаёт `MigrateModule` с конфигурацией PostgreSQL и передаёт выполнение `MigrateCommand` 
 контейнеру через `Dic::run()`.
 
 `MigrateCommand::execute()` асинхронно запускает `ApplyMigrations::execute()` и возвращает код завершения `0` при успехе. 
@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
 - `Application/UseCase/ApplyMigrationsTest.php` проверяет порядок и идемпотентность применения, дубли версий и откат 
   журнала при ошибке SQL на PostgreSQL-адаптере.
 - `Presentation/Console/MigrateCommandTest.php` проверяет успешное применение миграций командой через DI-контейнер 
-  и `AppModule`.
+  и `MigrateModule`.
 
 ## Ограничения
 

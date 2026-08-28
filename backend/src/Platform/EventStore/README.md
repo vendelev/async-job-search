@@ -39,14 +39,14 @@ EventStore/
 ## DI-Конфигурация
 
 `EventStoreModule` экспортирует только `Ref<EventStore>`.
-Он не импортируется `AppModule`, пока нет runtime-потребителя хранилища.
+Он не импортируется `MigrateModule`, пока нет runtime-потребителя хранилища.
 
 `EventBusModule` уже принимает `Ref<EventStore>` и добавляет событие в журнал
 до запуска его подписчиков. Когда появится первый runtime-потребитель шины,
-`AppModule` импортирует оба модуля и передаст export `EventStore` в `EventBusModule`.
+`MigrateModule` импортирует оба модуля и передаст export `EventStore` в `EventBusModule`.
 
 `EventStoreMigrationModule` экспортирует отдельно `Ref<MigrationProvider>`.
-Он уже импортируется `AppModule` и передаётся в `MigrationModule`.
+Он уже импортируется `MigrateModule` и передаётся в `MigrationModule`.
 
 ## Ограничения
 

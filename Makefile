@@ -2,7 +2,7 @@ include .env
 
 DOCKER_COMPOSE = docker compose
 
-.PHONY: help build install composer-install up down restart daemon migrate remigrate search-once php-test php-unit-tests php-cli php-log
+.PHONY: help build install composer-install up down restart vacancy-discovery-daemon migrate remigrate search-once php-test php-unit-tests php-cli php-log
 
 H1 = echo === ${1} ===
 BR = echo
@@ -11,7 +11,8 @@ TAB = echo "\t"
 help:
 	@$(call H1,Application)
 	@$(TAB) make install - Собрать образ и установить Composer-зависимости.
-	@$(TAB) make up - Запустить daemon в фоне.
+	@$(TAB) make up - Запустить daemon поиска вакансий в фоне.
+	@$(TAB) make vacancy-discovery-daemon - Запустить daemon поиска вакансий в foreground.
 	@$(TAB) make down - Остановить и удалить контейнеры.
 	@$(TAB) make restart - Перезапустить daemon.
 	@$(TAB) make migrate - Применить миграции PostgreSQL.
@@ -30,6 +31,9 @@ install: build composer-install
 
 composer-install:
 	$(DOCKER_COMPOSE) run --rm app composer install
+
+vacancy-discovery-daemon:
+	$(DOCKER_COMPOSE) up app
 
 up:
 	$(DOCKER_COMPOSE) up -d

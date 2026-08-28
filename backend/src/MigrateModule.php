@@ -17,7 +17,7 @@ use Thesis\Dic\Ref;
 /**
  * @implements Module<Ref<MigrateCommand>>
  */
-final readonly class AppModule implements Module
+final readonly class MigrateModule implements Module
 {
     public function __construct(
         private PostgresConfig $postgresConfig,
@@ -29,11 +29,12 @@ final readonly class AppModule implements Module
      */
     public function configure(Dic $dic): mixed
     {
+        $database = $dic->import(new PostgresModule($this->postgresConfig));
         return $dic->import(new MigrationModule(
-            $dic->import(new PostgresModule($this->postgresConfig)),
+            $database,
             [
                 $dic->import(new EventStoreMigrationModule()),
-                $dic->import(new VacancyDiscoveryMigrationModule())
+                $dic->import(new VacancyDiscoveryMigrationModule()),
             ]
         ));
     }

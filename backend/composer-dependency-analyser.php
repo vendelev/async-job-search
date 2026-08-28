@@ -12,8 +12,6 @@ return new Configuration()
     )
     ->ignoreErrorsOnPackages(
         [
-            'amphp/http-client',
-            'monolog/monolog',
             'revolt/event-loop',
             'sentry/sentry',
             'amphp/http-server',

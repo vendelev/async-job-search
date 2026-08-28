@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Suite;
 
-use App\AppModule;
+use App\MigrateModule;
 use App\Platform\Migration\Presentation\Console\MigrateCommand;
 use App\Platform\Postgres\Domain\PostgresDatabase;
 use App\Platform\Postgres\Domain\PostgresExecutor;
@@ -35,9 +35,9 @@ abstract class AppTestCase extends TestCase
             return;
         }
 
-        async(static fn (): int => Dic::run(
-            new AppModule(self::postgresConfig()),
-            static fn (MigrateCommand $command): int => $command->execute(),
+        async(static fn(): int => Dic::run(
+            new MigrateModule(self::postgresConfig()),
+            static fn(MigrateCommand $command): int => $command->execute(),
         ))->await();
 
         self::$databaseMigrated = true;
@@ -49,7 +49,7 @@ abstract class AppTestCase extends TestCase
 
         $this->database = Dic::run(
             new PostgresModule(self::postgresConfig()),
-            static fn (PostgresDatabase $database): PostgresDatabase => $database,
+            static fn(PostgresDatabase $database): PostgresDatabase => $database,
         );
     }
 

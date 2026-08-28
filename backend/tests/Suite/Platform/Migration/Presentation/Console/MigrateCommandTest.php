@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Platform\Migration\Presentation\Console;
 
-use App\AppModule;
+use App\MigrateModule;
 use App\Platform\Migration\Presentation\Console\MigrateCommand;
 use App\Platform\Postgres\Presentation\Config\PostgresConfig;
 use PHPUnit\Framework\Attributes\Test;
@@ -19,8 +19,8 @@ final class MigrateCommandTest extends AppTestCase
     public function itExecutes(): void
     {
         $exitCode = Dic::run(
-            new AppModule(PostgresConfig::fromEnvironment()),
-            static fn (MigrateCommand $command): int => $command->execute(),
+            new MigrateModule(PostgresConfig::fromEnvironment()),
+            static fn(MigrateCommand $command): int => $command->execute(),
         );
 
         self::assertSame(0, $exitCode);

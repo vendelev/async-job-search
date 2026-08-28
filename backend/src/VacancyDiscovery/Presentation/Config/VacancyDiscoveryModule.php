@@ -8,8 +8,8 @@ use App\Platform\EventBus\Domain\EventBus;
 use App\Platform\Postgres\Domain\PostgresDatabase;
 use App\VacancyDiscovery\Application\UseCase\DiscoverVacancies;
 use App\VacancyDiscovery\Domain\VacancyDeduplicator;
-use App\VacancyDiscovery\Domain\VacancySource;
 use App\VacancyDiscovery\Infrastructure\PostgresVacancyDeduplicator;
+use Psr\Log\LoggerInterface;
 use Thesis\Dic;
 use Thesis\Dic\Module;
 use Thesis\Dic\Ref;
@@ -24,12 +24,12 @@ final readonly class VacancyDiscoveryModule implements Module
     /**
      * @param Ref<PostgresDatabase> $database
      * @param Ref<EventBus> $eventBus
-     * @param list<Ref<VacancySource>> $sources
+     * @param Ref<LoggerInterface> $logger
      */
     public function __construct(
         private Ref $database,
         private Ref $eventBus,
-        private array $sources,
+        private Ref $logger,
     ) {
     }
 
@@ -40,6 +40,7 @@ final readonly class VacancyDiscoveryModule implements Module
      */
     public function configure(Dic $dic): Ref
     {
+        $sources = $dic->taggedList(VacancySourceTag::class);
         $deduplicator = $dic
             ->object(PostgresVacancyDeduplicator::class)
             ->doNotAutowire()
@@ -50,9 +51,10 @@ final readonly class VacancyDiscoveryModule implements Module
             ->object(DiscoverVacancies::class)
             ->doNotAutowire()
             ->args([
-                'sources' => $this->sources,
+                'sources' => $sources,
                 'deduplicator' => $deduplicator,
                 'eventBus' => $this->eventBus,
+                'logger' => $this->logger,
             ]);
     }
 }

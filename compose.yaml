@@ -13,7 +13,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["php", "bin/daemon.php"]
+    command: ["php", "bin/vacancy-discovery-daemon.php"]
   postgres:
     image: ghcr.io/pgmq/pg18-pgmq:v1.10.0
     restart: unless-stopped

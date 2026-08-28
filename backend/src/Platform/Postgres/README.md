@@ -69,11 +69,11 @@ Application-слой отсутствует: модуль не реализуе�
 ## Presentation
 
 `PostgresConfig::fromEnvironment()` - объект конфигурации
-Читает `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `DATABASE_USER` и `DATABASE_PASSWORD`. 
+Читает `DATABASE_HOST`, `DATABASE_PORT`, `POSTGRES_DB`, `POSTGRES_USER` и `POSTGRES_PASSWORD`. 
 Все значения обязательны; port должен быть целым числом от 1 до 65535.
 
 `PostgresModule` создаёт `PostgresConnectionPool` и экспортирует ссылку на`AmpPostgresDatabase`, реализующий `PostgresDatabase`. 
-Корневой `AppModule`передаёт этот export в модули, которым требуется PostgreSQL.
+Корневой `MigrateModule`передаёт этот export в модули, которым требуется PostgreSQL.
 
 ## Infrastructure
 

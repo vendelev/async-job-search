@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\VacancyDiscovery\Domain;
 
+use Amp\Cancellation;
 use App\VacancyDiscovery\Domain\Dto\ExternalVacancy;
 
 interface VacancySource
@@ -13,5 +14,5 @@ interface VacancySource
      *
      * @return iterable<ExternalVacancy>
      */
-    public function vacancies(): iterable;
+    public function vacancies(?Cancellation $cancellation = null): iterable;
 }

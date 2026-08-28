@@ -37,7 +37,7 @@ EventBus/
 `EventBusModule` принимает `Ref<EventStore>` и список `Ref<EventSubscriber>`.
 Он создаёт `WallClock` и экспортирует только `Ref<EventBus>`.
 
-Модуль не импортирован в `AppModule`, пока нет прикладного publisher.
+Модуль не импортирован в `MigrateModule`, пока нет прикладного publisher.
 Первый runtime-модуль передаст EventBus подписчиков через composition root.
 
 ## Следующий шаг

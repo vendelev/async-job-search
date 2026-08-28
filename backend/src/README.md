@@ -1,6 +1,6 @@
 # Composition Root
 
-`AppModule` в `AppModule.php` является composition root приложения. 
+`MigrateModule` в `MigrateModule.php` является composition root приложения. 
 Он не создаёт подключения или адаптеры напрямую: импортирует технические модули и
 передаёт между ними только `Ref<T>` exports.
 
@@ -23,7 +23,7 @@ flowchart LR
 3. `MigrationModule` получает оба export и возвращает `Ref<MigrateCommand>`.
 
 `backend/bin/migrate.php` создаёт `PostgresConfig` из окружения, передаёт его
-в `AppModule` и запускает экспортированный `MigrateCommand`.
+в `MigrateModule` и запускает экспортированный `MigrateCommand`.
 
 ## Runtime EventStore
 
@@ -32,7 +32,7 @@ flowchart LR
 Его миграции уже подключены независимо через `EventStoreMigrationModule`.
 
 `EventBus` уже реализован, но пока не импортируется корневым модулем: первого
-runtime-потребителя шины ещё нет. При его добавлении `AppModule` должен:
+runtime-потребителя шины ещё нет. При его добавлении `MigrateModule` должен:
 
 1. Импортировать `EventStoreModule`, передав ему `Ref<PostgresDatabase>`.
 2. Передать возвращённый `Ref<EventStore>` в `EventBusModule`.
@@ -45,5 +45,5 @@ EventBus добавляет событие в EventStore до запуска о�
 ## Правило изменения композиции
 
 При добавлении модуля не передавайте его Infrastructure-объекты напрямую.
-Модуль должен экспортировать `Ref` на Domain-контракт, а `AppModule` передаёт эту ссылку следующему потребителю. 
+Модуль должен экспортировать `Ref` на Domain-контракт, а `MigrateModule` передаёт эту ссылку следующему потребителю. 
 Одновременно обновляйте этот документ и README соответствующего модуля.

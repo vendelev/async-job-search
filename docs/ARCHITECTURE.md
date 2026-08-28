@@ -119,7 +119,7 @@ CLI-точки входа остаются тонкими bootstrap-скрипт
 
 ## DIC и composition root
 
-`AppModule` является composition root. Он импортирует модули и передаёт между
+`MigrateModule` является composition root. Он импортирует модули и передаёт между
 ними только типизированные `Ref<T>` exports. Корневой модуль не знает деталей
 PDO, PGMQ, HTTP-клиента источника или Telegram.
 
