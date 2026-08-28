@@ -11,9 +11,9 @@
     <php>
         <env name="DATABASE_HOST" value="postgres" force="true"/>
         <env name="DATABASE_PORT" value="5432" force="true"/>
-        <env name="DATABASE_NAME" value="async_job_search_test" force="true"/>
-        <env name="DATABASE_USER" value="async_job_search_test" force="true"/>
-        <env name="DATABASE_PASSWORD" value="async_job_search_test" force="true"/>
+        <env name="POSTGRES_DB" value="async_job_search_test" force="true"/>
+        <env name="POSTGRES_USER" value="async_job_search_test" force="true"/>
+        <env name="POSTGRES_PASSWORD" value="async_job_search_test" force="true"/>
     </php>
     <source>
         <include>

@@ -24,9 +24,9 @@ final readonly class PostgresConfig
         return new self(
             self::environment('DATABASE_HOST'),
             $port,
-            self::environment('DATABASE_NAME'),
-            self::environment('DATABASE_USER'),
-            self::environment('DATABASE_PASSWORD'),
+            self::environment('POSTGRES_DB'),
+            self::environment('POSTGRES_USER'),
+            self::environment('POSTGRES_PASSWORD'),
         );
     }
 

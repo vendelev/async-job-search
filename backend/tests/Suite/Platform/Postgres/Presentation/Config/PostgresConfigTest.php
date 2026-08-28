@@ -109,9 +109,9 @@ final class PostgresConfigTest extends TestCase
         return [
             'DATABASE_HOST' => 'postgres',
             'DATABASE_PORT' => '5432',
-            'DATABASE_NAME' => 'async_job_search_test',
-            'DATABASE_USER' => 'async_job_search_test',
-            'DATABASE_PASSWORD' => 'async_job_search_test',
+            'POSTGRES_DB' => 'async_job_search_test',
+            'POSTGRES_USER' => 'async_job_search_test',
+            'POSTGRES_PASSWORD' => 'async_job_search_test',
         ];
     }
 }
