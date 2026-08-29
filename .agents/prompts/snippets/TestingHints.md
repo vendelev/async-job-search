@@ -70,6 +70,31 @@
   - Adapter (взаимодействие с внешними сервисами)
   - Anti-corruption layer между модулями
 
+### Изоляция integration-тестов с PostgreSQL
+
+Если тест записывает данные в PostgreSQL, используй `AppTestCase::withinTransaction()`.
+
+- Передавай `PostgresExecutor`, полученный в callback, во все `Command`, `Query` и Application-сервисы
+  тестируемого сценария.
+- Выполняй Arrange, Act и Assert внутри callback.
+- Не очищай таблицы через `DELETE` в `setUp()` и не полагайся на данные из предыдущих тестов.
+- `withinTransaction()` всегда откатывает тестовые данные после callback, включая данные, созданные тестируемым
+  сервисом.
+- Транзакция в тесте изолирует тесты и не определяет семантику production-кода: production-операция может быть
+  построчной без общей транзакции.
+
+```php
+$this->withinTransaction(function (PostgresExecutor $database): void {
+    $query = new ServiceCatalogQuery($database);
+    $command = new ServiceCatalogCommand($database);
+    $importer = new ServiceCatalogImporter($query, $command);
+
+    $result = $importer->import([$service], false);
+
+    self::assertSame(1, $result->created);
+});
+```
+
 ### End-To-End (E2E) тесты
 
 Тестирование полного пользовательского потока через HTTP или CLI, включая все слои.
