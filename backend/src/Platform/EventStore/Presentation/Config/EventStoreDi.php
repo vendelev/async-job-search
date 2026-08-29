@@ -14,7 +14,7 @@ use Thesis\Dic\Ref;
 /**
  * @implements Module<Ref<EventStore>>
  */
-final readonly class EventStoreModule implements Module
+final readonly class EventStoreDi implements Module
 {
     /**
      * @param Ref<PostgresDatabase> $database

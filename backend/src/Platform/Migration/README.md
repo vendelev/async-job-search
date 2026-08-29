@@ -18,7 +18,7 @@ Migration/
 │   └── PostgresMigrationStorage.php
 └── Presentation/
     ├── Config/
-    │   └── MigrationModule.php
+    │   └── MigrationDi.php
     └── Console/
         └── MigrateCommand.php
 ```
@@ -27,14 +27,14 @@ Migration/
 flowchart LR
     Provider[MigrationProvider] --> UseCase[ApplyMigrations]
     Command[MigrateCommand] --> UseCase
-    Module[MigrationModule] --> UseCase
+    Module[MigrationDi] --> UseCase
     Module --> Storage[PostgresMigrationStorage]
     UseCase --> Storage
     Storage --> Database[PostgresDatabase]
     Database --> PostgreSQL[(PostgreSQL)]
 ```
 
-`MigrationModule` связывает `PostgresMigrationStorage` с Domain-контрактом `MigrationStorage`, создаёт `ApplyMigrations` 
+`MigrationDi` связывает `PostgresMigrationStorage` с Domain-контрактом `MigrationStorage`, создаёт `ApplyMigrations` 
 и экспортирует `MigrateCommand`.
 
 ## Предметная область
@@ -47,8 +47,8 @@ flowchart LR
 
 Модуль, которому нужна собственная PostgreSQL-схема, реализует `MigrationProvider` в своей Infrastructure и 
 экспортирует его из своего DI-модуля. 
-Например, `EventStoreMigrationModule` экспортирует `EventStoreMigrationProvider`; 
-корневой `MigrateModule` передаёт этот provider в `MigrationModule`.
+Например, `EventStoreMigrationDi` экспортирует `EventStoreMigrationProvider`; 
+корневой `MigrateModule` передаёт этот provider в `MigrationDi`.
 
 ## Бизнес-логика
 
@@ -88,10 +88,10 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
 
 ## Зависимости и конфигурация
 
-`MigrationModule` принимает ссылку на `PostgresDatabase` из модуля `Platform\Postgres` и список ссылок на `MigrationProvider`. 
+`MigrationDi` принимает ссылку на `PostgresDatabase` из модуля `Platform\Postgres` и список ссылок на `MigrationProvider`. 
 Сам модуль не читает переменные окружения и не создаёт подключение к PostgreSQL.
 
-Для DI используется `thesis/dic`; выполнение команды использует `amphp/amp`. Настройки подключения к PostgreSQL принадлежат `Platform\Postgres\Presentation\Config\PostgresConfig`.
+Для DI используется `thesis/dic`; выполнение команды использует `amphp/amp`. Настройки подключения к PostgreSQL принадлежат `Platform\Postgres\Presentation\Config\PostgresEnv`.
 
 ## Тестирование
 

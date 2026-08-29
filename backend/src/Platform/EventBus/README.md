@@ -14,7 +14,7 @@ EventBus/
 ├── Infrastructure/
 │   └── InMemoryEventBus.php
 └── Presentation/Config/
-    └── EventBusModule.php
+    └── EventBusDi.php
 ```
 
 ## Domain
@@ -34,7 +34,7 @@ EventBus/
 
 ## DI-конфигурация
 
-`EventBusModule` принимает `Ref<EventStore>` и список `Ref<EventSubscriber>`.
+`EventBusDi` принимает `Ref<EventStore>` и список `Ref<EventSubscriber>`.
 Он создаёт `WallClock` и экспортирует только `Ref<EventBus>`.
 
 Модуль не импортирован в `MigrateModule`, пока нет прикладного publisher.

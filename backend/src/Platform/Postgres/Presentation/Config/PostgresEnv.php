@@ -6,7 +6,7 @@ namespace App\Platform\Postgres\Presentation\Config;
 
 use InvalidArgumentException;
 
-final readonly class PostgresConfig
+final readonly class PostgresEnv
 {
     /**
      * @throws InvalidArgumentException Если обязательная переменная PostgreSQL не задана

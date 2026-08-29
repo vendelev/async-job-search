@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Suite\Platform\Postgres\Presentation\Config;
 
 use App\Platform\Postgres\Domain\PostgresDatabase;
-use App\Platform\Postgres\Presentation\Config\PostgresConfig;
-use App\Platform\Postgres\Presentation\Config\PostgresModule;
+use App\Platform\Postgres\Presentation\Config\PostgresEnv;
+use App\Platform\Postgres\Presentation\Config\PostgresDi;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
@@ -22,7 +22,7 @@ final class PostgresModuleTest extends TestCase
     {
         async(static function (): void {
             Dic::run(
-                new PostgresModule(PostgresConfig::fromEnvironment()),
+                new PostgresDi(PostgresEnv::fromEnvironment()),
                 static function (PostgresDatabase $database): void {
                     $result = $database->execute('SELECT 1 AS value');
 

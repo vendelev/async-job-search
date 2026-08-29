@@ -19,7 +19,7 @@ use function Typhoon\Type\objectT;
 /**
  * @implements Module<Ref<MigrateCommand>>
  */
-final readonly class MigrationModule implements Module
+final readonly class MigrationDi implements Module
 {
     /**
      * @param Ref<PostgresDatabase> $database

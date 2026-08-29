@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Suite\Platform\EventStore\Presentation\Config;
 
 use App\Platform\EventStore\Domain\EventStore;
-use App\Platform\EventStore\Presentation\Config\EventStoreModule;
-use App\Platform\Postgres\Presentation\Config\PostgresConfig;
-use App\Platform\Postgres\Presentation\Config\PostgresModule;
+use App\Platform\EventStore\Presentation\Config\EventStoreDi;
+use App\Platform\Postgres\Presentation\Config\PostgresEnv;
+use App\Platform\Postgres\Presentation\Config\PostgresDi;
 use Thesis\Dic;
 use Thesis\Dic\Module;
 use Thesis\Dic\Ref;
@@ -21,7 +21,7 @@ use Thesis\Dic\Ref;
 final readonly class EventStoreTestModule implements Module
 {
     public function __construct(
-        private PostgresConfig $config,
+        private PostgresEnv $config,
     ) {
     }
 
@@ -30,8 +30,8 @@ final readonly class EventStoreTestModule implements Module
      */
     public function configure(Dic $dic): Ref
     {
-        $database = $dic->import(new PostgresModule($this->config));
+        $database = $dic->import(new PostgresDi($this->config));
 
-        return $dic->import(new EventStoreModule($database));
+        return $dic->import(new EventStoreDi($database));
     }
 }

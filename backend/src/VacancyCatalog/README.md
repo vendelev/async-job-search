@@ -21,8 +21,8 @@ VacancyCatalog/
 │   └── VacancyCatalogMigrationProvider.php
 ├── Presentation/
 │   ├── Config/
-│   │   ├── VacancyCatalogMigrationModule.php
-│   │   └── VacancyCatalogModule.php
+│   │   ├── VacancyCatalogMigrationDi.php
+│   │   └── VacancyCatalogDi.php
 │   └── Listener/VacancyDiscoveredSubscriber.php
 └── README.md
 ```
@@ -66,7 +66,7 @@ flowchart LR
 `VacancyDiscoveredSubscriber` реализует `EventSubscriber`, подписывается на `VacancyDiscovered` и передаёт
 вакансию в `VacancyCatalog::add()`.
 
-В `VacancyDiscoveryDaemonModule` subscriber передаётся в `EventBusModule`. 
+В `VacancyDiscoveryDaemonModule` subscriber передаётся в `EventBusDi`. 
 Поэтому в runtime опубликованное `VacancyDiscovered` доставляется в каталог через `EventBus`.
 
 HTTP-контроллеры, маршруты и консольные команды в модуле отсутствуют. 
@@ -85,12 +85,12 @@ HTTP-контроллеры, маршруты и консольные коман
 `ON CONFLICT (source, external_vacancy_id) DO NOTHING`.
 
 `VacancyCatalogMigrationProvider` публикует миграцию `vacancy_catalog_001_create_vacancies`.
-`VacancyCatalogMigrationModule` передаёт её в общий `MigrateModule`.
+`VacancyCatalogMigrationDi` передаёт её в общий `MigrateModule`.
 
 ## Зависимости и конфигурация
 
-`VacancyCatalogModule` принимает `Ref<PostgresDatabase>`, регистрирует `PostgresVacancyCatalog`, use cases и
-экспортирует `Ref<EventSubscriber>` для `EventBusModule`.
+`VacancyCatalogDi` принимает `Ref<PostgresDatabase>`, регистрирует `PostgresVacancyCatalog`, use cases и
+экспортирует `Ref<EventSubscriber>` для `EventBusDi`.
 
 Модуль использует:
 

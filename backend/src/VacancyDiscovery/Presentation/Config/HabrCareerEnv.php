@@ -7,7 +7,7 @@ namespace App\VacancyDiscovery\Presentation\Config;
 use SensitiveParameter;
 use InvalidArgumentException;
 
-final readonly class HabrCareerConfig
+final readonly class HabrCareerEnv
 {
     /**
      * @throws InvalidArgumentException Если cookie Habr Career не задана

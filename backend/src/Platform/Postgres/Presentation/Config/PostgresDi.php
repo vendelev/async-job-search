@@ -17,10 +17,10 @@ use function Typhoon\Type\objectT;
 /**
  * @implements Module<Ref<PostgresDatabase>>
  */
-final readonly class PostgresModule implements Module
+final readonly class PostgresDi implements Module
 {
     public function __construct(
-        private PostgresConfig $config,
+        private PostgresEnv $config,
     ) {
     }
 

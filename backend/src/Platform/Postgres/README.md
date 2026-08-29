@@ -14,8 +14,8 @@ Postgres/
 │   ├── AmpPostgresDatabase.php
 │   ├── AmpPostgresTransaction.php
 └── Presentation/Config/
-    ├── PostgresConfig.php
-    └── PostgresModule.php
+    ├── PostgresEnv.php
+    └── PostgresDi.php
 ```
 
 ## Domain
@@ -68,16 +68,16 @@ Application-слой отсутствует: модуль не реализуе�
 
 ## Presentation
 
-`PostgresConfig::fromEnvironment()` - объект конфигурации
+`PostgresEnv::fromEnvironment()` - объект конфигурации
 Читает `DATABASE_HOST`, `DATABASE_PORT`, `POSTGRES_DB`, `POSTGRES_USER` и `POSTGRES_PASSWORD`. 
 Все значения обязательны; port должен быть целым числом от 1 до 65535.
 
-`PostgresModule` создаёт `PostgresConnectionPool` и экспортирует ссылку на`AmpPostgresDatabase`, реализующий `PostgresDatabase`. 
+`PostgresDi` создаёт `PostgresConnectionPool` и экспортирует ссылку на`AmpPostgresDatabase`, реализующий `PostgresDatabase`. 
 Корневой `MigrateModule`передаёт этот export в модули, которым требуется PostgreSQL.
 
 ## Infrastructure
 
-`PostgresModule::createPool()` создаёт общий `PostgresConnectionPool` из
+`PostgresDi::createPool()` создаёт общий `PostgresConnectionPool` из
 конфигурации.
 `AmpPostgresDatabase` адаптирует pool к `PostgresDatabase`.
 `AmpPostgresTransaction` адаптирует транзакцию к `PostgresExecutor`.

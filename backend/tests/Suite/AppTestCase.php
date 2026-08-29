@@ -9,8 +9,8 @@ use App\Platform\Migration\Presentation\Console\MigrateCommand;
 use App\Platform\Postgres\Domain\PostgresDatabase;
 use App\Platform\Postgres\Domain\PostgresExecutor;
 use App\Platform\Postgres\Infrastructure\AmpPostgresTransaction;
-use App\Platform\Postgres\Presentation\Config\PostgresConfig;
-use App\Platform\Postgres\Presentation\Config\PostgresModule;
+use App\Platform\Postgres\Presentation\Config\PostgresEnv;
+use App\Platform\Postgres\Presentation\Config\PostgresDi;
 use Closure;
 use PHPUnit\Framework\TestCase;
 use Thesis\Dic;
@@ -48,7 +48,7 @@ abstract class AppTestCase extends TestCase
         parent::setUp();
 
         $this->database = Dic::run(
-            new PostgresModule(self::postgresConfig()),
+            new PostgresDi(self::postgresConfig()),
             static fn(PostgresDatabase $database): PostgresDatabase => $database,
         );
     }
@@ -73,8 +73,8 @@ abstract class AppTestCase extends TestCase
         })->await();
     }
 
-    private static function postgresConfig(): PostgresConfig
+    private static function postgresConfig(): PostgresEnv
     {
-        return PostgresConfig::fromEnvironment();
+        return PostgresEnv::fromEnvironment();
     }
 }

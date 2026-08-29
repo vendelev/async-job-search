@@ -13,7 +13,7 @@ use Thesis\Dic\Ref;
 /**
  * @implements Module<Ref<MigrationProvider>>
  */
-final readonly class VacancyDiscoveryMigrationModule implements Module
+final readonly class VacancyDiscoveryMigrationDi implements Module
 {
     /**
      * Регистрирует миграции VacancyDiscovery.

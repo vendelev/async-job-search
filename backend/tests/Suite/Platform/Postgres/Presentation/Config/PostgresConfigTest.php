@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Suite\Platform\Postgres\Presentation\Config;
 
-use App\Platform\Postgres\Presentation\Config\PostgresConfig;
+use App\Platform\Postgres\Presentation\Config\PostgresEnv;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -46,7 +46,7 @@ final class PostgresConfigTest extends TestCase
     #[TestDox('Создаёт конфигурацию из переменных окружения')]
     public function itCreatesFromEnvironment(): void
     {
-        $config = PostgresConfig::fromEnvironment();
+        $config = PostgresEnv::fromEnvironment();
 
         self::assertSame('postgres', $config->host);
         self::assertSame(5432, $config->port);
@@ -65,7 +65,7 @@ final class PostgresConfigTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessageIsOrContains(sprintf('Не задана переменная окружения %s.', $name));
 
-        PostgresConfig::fromEnvironment();
+        PostgresEnv::fromEnvironment();
     }
 
     #[Test]
@@ -78,7 +78,7 @@ final class PostgresConfigTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessageIsOrContains('DATABASE_PORT должен быть целым числом от 1 до 65535.');
 
-        PostgresConfig::fromEnvironment();
+        PostgresEnv::fromEnvironment();
     }
 
     /**

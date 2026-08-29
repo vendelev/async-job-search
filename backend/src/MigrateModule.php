@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\Platform\EventStore\Presentation\Config\EventStoreMigrationModule;
-use App\Platform\Migration\Presentation\Config\MigrationModule;
+use App\Platform\EventStore\Presentation\Config\EventStoreMigrationDi;
+use App\Platform\Migration\Presentation\Config\MigrationDi;
 use App\Platform\Migration\Presentation\Console\MigrateCommand;
-use App\Platform\Postgres\Presentation\Config\PostgresConfig;
-use App\Platform\Postgres\Presentation\Config\PostgresModule;
-use App\VacancyCatalog\Presentation\Config\VacancyCatalogMigrationModule;
-use App\VacancyDiscovery\Presentation\Config\VacancyDiscoveryMigrationModule;
+use App\Platform\Postgres\Presentation\Config\PostgresEnv;
+use App\Platform\Postgres\Presentation\Config\PostgresDi;
+use App\VacancyCatalog\Presentation\Config\VacancyCatalogMigrationDi;
+use App\VacancyDiscovery\Presentation\Config\VacancyDiscoveryMigrationDi;
 use Thesis\Dic;
 use Thesis\Dic\Module;
 use Thesis\Dic\Ref;
@@ -21,7 +21,7 @@ use Thesis\Dic\Ref;
 final readonly class MigrateModule implements Module
 {
     public function __construct(
-        private PostgresConfig $postgresConfig,
+        private PostgresEnv $postgresConfig,
     ) {
     }
 
@@ -30,13 +30,13 @@ final readonly class MigrateModule implements Module
      */
     public function configure(Dic $dic): mixed
     {
-        $database = $dic->import(new PostgresModule($this->postgresConfig));
-        return $dic->import(new MigrationModule(
+        $database = $dic->import(new PostgresDi($this->postgresConfig));
+        return $dic->import(new MigrationDi(
             $database,
             [
-                $dic->import(new EventStoreMigrationModule()),
-                $dic->import(new VacancyCatalogMigrationModule()),
-                $dic->import(new VacancyDiscoveryMigrationModule()),
+                $dic->import(new EventStoreMigrationDi()),
+                $dic->import(new VacancyCatalogMigrationDi()),
+                $dic->import(new VacancyDiscoveryMigrationDi()),
             ]
         ));
     }

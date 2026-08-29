@@ -20,7 +20,7 @@ use function Typhoon\Type\objectT;
 /**
  * @implements Module<Ref<EventSubscriber>>
  */
-final readonly class VacancyCatalogModule implements Module
+final readonly class VacancyCatalogDi implements Module
 {
     /**
      * @param Ref<PostgresDatabase> $database

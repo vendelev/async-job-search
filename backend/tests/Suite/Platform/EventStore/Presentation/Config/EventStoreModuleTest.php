@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Suite\Platform\EventStore\Presentation\Config;
 
 use App\Platform\EventStore\Domain\EventStore;
-use App\Platform\Postgres\Presentation\Config\PostgresConfig;
+use App\Platform\Postgres\Presentation\Config\PostgresEnv;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\Suite\AppTestCase;
@@ -21,7 +21,7 @@ final class EventStoreModuleTest extends AppTestCase
     {
         async(static function (): void {
             Dic::run(
-                new EventStoreTestModule(PostgresConfig::fromEnvironment()),
+                new EventStoreTestModule(PostgresEnv::fromEnvironment()),
                 static function (EventStore $store): void {
                     self::assertSame([], $store->history('event-store-module-test-empty-stream'));
                 },

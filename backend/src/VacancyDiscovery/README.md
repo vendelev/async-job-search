@@ -81,8 +81,8 @@ HTTP-входы и маршруты в модуле отсутствуют.
 подписчика и источник Habr Career.
 
 Каждый подключённый source-модуль помечает свою реализацию `VacancySource` тегом `VacancySourceTag`.
-`VacancyDiscoveryModule` собирает помеченные источники через `Dic::taggedList()`. Чтобы подключить новый источник,
-его модуль нужно импортировать в `VacancyDiscoveryDaemonModule` до импорта `VacancyDiscoveryModule` и пометить
+`VacancyDiscoveryDi` собирает помеченные источники через `Dic::taggedList()`. Чтобы подключить новый источник,
+его модуль нужно импортировать в `VacancyDiscoveryDaemonModule` до импорта `VacancyDiscoveryDi` и пометить
 экспортируемый `VacancySource` этим тегом.
 
 ## Инфраструктура

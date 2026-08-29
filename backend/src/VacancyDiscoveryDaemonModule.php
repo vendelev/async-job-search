@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\Platform\EventBus\Presentation\Config\EventBusModule;
-use App\Platform\EventStore\Presentation\Config\EventStoreModule;
-use App\Platform\Logging\Presentation\Config\LoggingModule;
-use App\Platform\Postgres\Presentation\Config\PostgresConfig;
-use App\Platform\Postgres\Presentation\Config\PostgresModule;
-use App\VacancyCatalog\Presentation\Config\VacancyCatalogModule;
-use App\VacancyDiscovery\Presentation\Config\HabrCareerConfig;
-use App\VacancyDiscovery\Presentation\Config\HabrCareerModule;
-use App\VacancyDiscovery\Presentation\Config\VacancyDiscoveryModule;
+use App\Platform\EventBus\Presentation\Config\EventBusDi;
+use App\Platform\EventStore\Presentation\Config\EventStoreDi;
+use App\Platform\Logging\Presentation\Config\LoggingDi;
+use App\Platform\Postgres\Presentation\Config\PostgresEnv;
+use App\Platform\Postgres\Presentation\Config\PostgresDi;
+use App\VacancyCatalog\Presentation\Config\VacancyCatalogDi;
+use App\VacancyDiscovery\Presentation\Config\HabrCareerEnv;
+use App\VacancyDiscovery\Presentation\Config\HabrCareerDi;
+use App\VacancyDiscovery\Presentation\Config\VacancyDiscoveryDi;
 use App\VacancyDiscovery\Presentation\Console\DiscoverVacanciesDaemon;
 use Thesis\Dic;
 use Thesis\Dic\Module;
@@ -24,8 +24,8 @@ use Thesis\Dic\Ref;
 final readonly class VacancyDiscoveryDaemonModule implements Module
 {
     public function __construct(
-        private PostgresConfig $postgresConfig,
-        private HabrCareerConfig $habrCareerConfig,
+        private PostgresEnv $postgresConfig,
+        private HabrCareerEnv $habrCareerEnv,
     ) {
     }
 
@@ -36,14 +36,14 @@ final readonly class VacancyDiscoveryDaemonModule implements Module
      */
     public function configure(Dic $dic): Ref
     {
-        $database = $dic->import(new PostgresModule($this->postgresConfig));
-        $logger = $dic->import(new LoggingModule());
-        $eventStore = $dic->import(new EventStoreModule($database));
-        $catalogSubscriber = $dic->import(new VacancyCatalogModule($database));
-        $eventBus = $dic->import(new EventBusModule($eventStore, [$catalogSubscriber]));
-        $dic->import(new HabrCareerModule($this->habrCareerConfig));
+        $database = $dic->import(new PostgresDi($this->postgresConfig));
+        $logger = $dic->import(new LoggingDi());
+        $eventStore = $dic->import(new EventStoreDi($database));
+        $catalogSubscriber = $dic->import(new VacancyCatalogDi($database));
+        $eventBus = $dic->import(new EventBusDi($eventStore, [$catalogSubscriber]));
+        $dic->import(new HabrCareerDi($this->habrCareerEnv));
 
-        $discoverVacancies = $dic->import(new VacancyDiscoveryModule($database, $eventBus, $logger));
+        $discoverVacancies = $dic->import(new VacancyDiscoveryDi($database, $eventBus, $logger));
 
         return $dic
             ->object(DiscoverVacanciesDaemon::class)

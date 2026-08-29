@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Suite;
 
 use App\VacancyDiscoveryDaemonModule;
-use App\Platform\Postgres\Presentation\Config\PostgresConfig;
-use App\VacancyDiscovery\Presentation\Config\HabrCareerConfig;
+use App\Platform\Postgres\Presentation\Config\PostgresEnv;
+use App\VacancyDiscovery\Presentation\Config\HabrCareerEnv;
 use App\VacancyDiscovery\Presentation\Console\DiscoverVacanciesDaemon;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -22,8 +22,8 @@ final class DaemonModuleTest extends AppTestCase
 
         Dic::run(
             new VacancyDiscoveryDaemonModule(
-                PostgresConfig::fromEnvironment(),
-                new HabrCareerConfig('test-cookie'),
+                PostgresEnv::fromEnvironment(),
+                new HabrCareerEnv('test-cookie'),
             ),
             static function (DiscoverVacanciesDaemon $daemon) use (&$daemonBuilt): void {
                 $daemonBuilt = true;

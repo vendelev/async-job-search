@@ -16,7 +16,7 @@ use function Typhoon\Type\objectT;
 /**
  * @implements Module<Ref<LoggerInterface>>
  */
-final readonly class LoggingModule implements Module
+final readonly class LoggingDi implements Module
 {
     /**
      * Регистрирует PSR-3 logger приложения.

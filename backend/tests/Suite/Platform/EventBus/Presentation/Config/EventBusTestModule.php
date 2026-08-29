@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tests\Suite\Platform\EventBus\Presentation\Config;
 
 use App\Platform\EventBus\Domain\EventBus;
-use App\Platform\EventBus\Presentation\Config\EventBusModule;
-use App\Platform\EventStore\Presentation\Config\EventStoreModule;
-use App\Platform\Postgres\Presentation\Config\PostgresConfig;
-use App\Platform\Postgres\Presentation\Config\PostgresModule;
+use App\Platform\EventBus\Presentation\Config\EventBusDi;
+use App\Platform\EventStore\Presentation\Config\EventStoreDi;
+use App\Platform\Postgres\Presentation\Config\PostgresEnv;
+use App\Platform\Postgres\Presentation\Config\PostgresDi;
 use Thesis\Dic;
 use Thesis\Dic\Module;
 use Thesis\Dic\Ref;
@@ -19,7 +19,7 @@ use Thesis\Dic\Ref;
 final readonly class EventBusTestModule implements Module
 {
     public function __construct(
-        private PostgresConfig $config,
+        private PostgresEnv $config,
     ) {
     }
 
@@ -28,9 +28,9 @@ final readonly class EventBusTestModule implements Module
      */
     public function configure(Dic $dic): Ref
     {
-        $database = $dic->import(new PostgresModule($this->config));
-        $eventStore = $dic->import(new EventStoreModule($database));
+        $database = $dic->import(new PostgresDi($this->config));
+        $eventStore = $dic->import(new EventStoreDi($database));
 
-        return $dic->import(new EventBusModule($eventStore));
+        return $dic->import(new EventBusDi($eventStore));
     }
 }

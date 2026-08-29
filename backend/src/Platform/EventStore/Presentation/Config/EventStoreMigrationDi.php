@@ -13,7 +13,7 @@ use Thesis\Dic\Ref;
 /**
  * @implements Module<Ref<MigrationProvider>>
  */
-final readonly class EventStoreMigrationModule implements Module
+final readonly class EventStoreMigrationDi implements Module
 {
     /**
      * Регистрирует миграции EventStore.

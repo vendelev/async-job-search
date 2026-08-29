@@ -19,7 +19,7 @@ use function Typhoon\Type\objectT;
 /**
  * @implements Module<Ref<DiscoverVacancies>>
  */
-final readonly class VacancyDiscoveryModule implements Module
+final readonly class VacancyDiscoveryDi implements Module
 {
     /**
      * @param Ref<PostgresDatabase> $database

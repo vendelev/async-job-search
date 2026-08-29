@@ -18,10 +18,10 @@ use function Typhoon\Type\objectT;
 /**
  * @implements Module<Ref<VacancySource>>
  */
-final readonly class HabrCareerModule implements Module
+final readonly class HabrCareerDi implements Module
 {
     public function __construct(
-        private HabrCareerConfig $config,
+        private HabrCareerEnv $config,
     ) {
     }
 

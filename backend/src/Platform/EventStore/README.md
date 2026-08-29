@@ -16,8 +16,8 @@ EventStore/
 │   ├── EventStoreMigrationProvider.php
 │   └── PostgresEventStore.php
 └── Presentation/Config/
-    ├── EventStoreMigrationModule.php
-    └── EventStoreModule.php
+    ├── EventStoreMigrationDi.php
+    └── EventStoreDi.php
 ```
 
 ## Domain
@@ -38,15 +38,15 @@ EventStore/
 
 ## DI-Конфигурация
 
-`EventStoreModule` экспортирует только `Ref<EventStore>`.
+`EventStoreDi` экспортирует только `Ref<EventStore>`.
 Он не импортируется `MigrateModule`, пока нет runtime-потребителя хранилища.
 
-`EventBusModule` уже принимает `Ref<EventStore>` и добавляет событие в журнал
+`EventBusDi` уже принимает `Ref<EventStore>` и добавляет событие в журнал
 до запуска его подписчиков. Когда появится первый runtime-потребитель шины,
-`MigrateModule` импортирует оба модуля и передаст export `EventStore` в `EventBusModule`.
+`MigrateModule` импортирует оба модуля и передаст export `EventStore` в `EventBusDi`.
 
-`EventStoreMigrationModule` экспортирует отдельно `Ref<MigrationProvider>`.
-Он уже импортируется `MigrateModule` и передаётся в `MigrationModule`.
+`EventStoreMigrationDi` экспортирует отдельно `Ref<MigrationProvider>`.
+Он уже импортируется `MigrateModule` и передаётся в `MigrationDi`.
 
 ## Ограничения
 

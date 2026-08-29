@@ -6,7 +6,7 @@ namespace Tests\Suite\Platform\EventBus\Presentation\Config;
 
 use App\Platform\EventBus\Domain\EventBus;
 use App\Platform\EventBus\Infrastructure\InMemoryEventBus;
-use App\Platform\Postgres\Presentation\Config\PostgresConfig;
+use App\Platform\Postgres\Presentation\Config\PostgresEnv;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
 use Tests\Suite\AppTestCase;
@@ -22,7 +22,7 @@ final class EventBusModuleTest extends AppTestCase
     {
         async(static function (): void {
             Dic::run(
-                new EventBusTestModule(PostgresConfig::fromEnvironment()),
+                new EventBusTestModule(PostgresEnv::fromEnvironment()),
                 static function (EventBus $bus): void {
                     $event = new ModuleTestEvent('event-bus-module-test-' . uniqid('', true));
                     $bus->publish($event);

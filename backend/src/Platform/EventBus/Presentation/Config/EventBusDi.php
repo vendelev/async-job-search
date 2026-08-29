@@ -19,7 +19,7 @@ use function Typhoon\Type\objectT;
 /**
  * @implements Module<Ref<EventBus>>
  */
-final readonly class EventBusModule implements Module
+final readonly class EventBusDi implements Module
 {
     /**
      * @param Ref<EventStore> $eventStore
