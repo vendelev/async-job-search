@@ -24,11 +24,16 @@ final readonly class EventStoreMigrationProvider implements MigrationProvider
                     type TEXT NOT NULL,
                     occurred_at TIMESTAMPTZ NOT NULL,
                     payload JSONB NOT NULL
-                );
+                )
+                SQL,
+        );
 
+        yield new Migration(
+            'event_store_002_create_events_stream_position_index',
+            <<<'SQL'
                 CREATE INDEX event_store_events_stream_position_index
-                    ON event_store_events (stream_name, position);
-            SQL,
+                    ON event_store_events (stream_name, position)
+                SQL,
         );
     }
 }
