@@ -1,7 +1,6 @@
 services:
-  app:
-    build:
-      context: ./docker/php
+  daemon:
+    image: vendelev/async-job-search:php-2026-09-05
     restart: always
     working_dir: /var/www
     init: true
@@ -14,6 +13,20 @@ services:
       postgres:
         condition: service_healthy
     command: ["php", "bin/vacancy-discovery-daemon.php"]
+  app:
+    image: vendelev/async-job-search:php-2026-09-05
+    restart: always
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    env_file:
+      - path: .env
+    ports:
+      - "${HTTP_PORT}:${HTTP_PORT}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["php", "bin/http.php"]
   postgres:
     image: ghcr.io/pgmq/pg18-pgmq:v1.10.0
     restart: unless-stopped

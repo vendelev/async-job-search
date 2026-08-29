@@ -8,6 +8,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
+      HTTP_PORT: 8080
       POSTGRES_DB: async_job_search
       POSTGRES_PASSWORD: async_job_search
       POSTGRES_USER: async_job_search
@@ -15,8 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Prepare environment
+        run: cp .env.dist .env
+
       - name: Build application image
-        run: docker compose build
+        run: make build
 
       - name: Install dependencies
         run: docker compose run --rm --user root app composer install --no-interaction --prefer-dist

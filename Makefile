@@ -2,7 +2,7 @@ include .env
 
 DOCKER_COMPOSE = docker compose
 
-.PHONY: help build install composer-install up down restart vacancy-discovery-daemon migrate remigrate search-once php-test php-unit-tests php-cli php-log
+.PHONY: help build install composer-install up down restart vacancy-discovery-daemon migrate remigrate search-once php-test php-unit-tests php-cli app-log daemon-log
 
 H1 = echo === ${1} ===
 BR = echo
@@ -11,10 +11,9 @@ TAB = echo "\t"
 help:
 	@$(call H1,Application)
 	@$(TAB) make install - Собрать образ и установить Composer-зависимости.
-	@$(TAB) make up - Запустить daemon поиска вакансий в фоне.
-	@$(TAB) make vacancy-discovery-daemon - Запустить daemon поиска вакансий в foreground.
+	@$(TAB) make up - Запустить сервисы приложения в фоне.
 	@$(TAB) make down - Остановить и удалить контейнеры.
-	@$(TAB) make restart - Перезапустить daemon.
+	@$(TAB) make restart - Перезапустить сервисы приложения.
 	@$(TAB) make migrate - Применить миграции PostgreSQL.
 	@$(TAB) make remigrate - Удалить PostgreSQL volume и применить миграции заново.
 	@$(call BR)
@@ -22,18 +21,16 @@ help:
 	@$(TAB) make php-test - Выполнить Composer-проверки.
 	@$(TAB) make php-unit-tests - Запустить PHPUnit. TEST=... выбирает тест.
 	@$(TAB) make php-cli - Открыть Bash в PHP-контейнере.
-	@$(TAB) make php-log - Показать логи daemon.
+	@$(TAB) make app-log - Показать логи HTTP-сервера.
+	@$(TAB) make daemon-log - Показать логи daemon поиска вакансий.
 
 build:
-	$(DOCKER_COMPOSE) build
+	$(DOCKER_COMPOSE) -f compose.build.yml build
 
 install: build composer-install
 
 composer-install:
 	$(DOCKER_COMPOSE) run --rm app composer install
-
-vacancy-discovery-daemon:
-	$(DOCKER_COMPOSE) up app
 
 up:
 	$(DOCKER_COMPOSE) up -d
@@ -64,5 +61,8 @@ endif
 php-cli:
 	$(DOCKER_COMPOSE) exec -it app bash
 
-php-log:
+app-log:
+	$(DOCKER_COMPOSE) logs app
+
+daemon-log:
 	$(DOCKER_COMPOSE) logs app
