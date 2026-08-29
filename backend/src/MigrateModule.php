@@ -9,6 +9,7 @@ use App\Platform\Migration\Presentation\Config\MigrationModule;
 use App\Platform\Migration\Presentation\Console\MigrateCommand;
 use App\Platform\Postgres\Presentation\Config\PostgresConfig;
 use App\Platform\Postgres\Presentation\Config\PostgresModule;
+use App\VacancyCatalog\Presentation\Config\VacancyCatalogMigrationModule;
 use App\VacancyDiscovery\Presentation\Config\VacancyDiscoveryMigrationModule;
 use Thesis\Dic;
 use Thesis\Dic\Module;
@@ -34,6 +35,7 @@ final readonly class MigrateModule implements Module
             $database,
             [
                 $dic->import(new EventStoreMigrationModule()),
+                $dic->import(new VacancyCatalogMigrationModule()),
                 $dic->import(new VacancyDiscoveryMigrationModule()),
             ]
         ));

@@ -9,6 +9,7 @@ use App\Platform\EventStore\Presentation\Config\EventStoreModule;
 use App\Platform\Logging\Presentation\Config\LoggingModule;
 use App\Platform\Postgres\Presentation\Config\PostgresConfig;
 use App\Platform\Postgres\Presentation\Config\PostgresModule;
+use App\VacancyCatalog\Presentation\Config\VacancyCatalogModule;
 use App\VacancyDiscovery\Presentation\Config\HabrCareerConfig;
 use App\VacancyDiscovery\Presentation\Config\HabrCareerModule;
 use App\VacancyDiscovery\Presentation\Config\VacancyDiscoveryModule;
@@ -38,8 +39,9 @@ final readonly class VacancyDiscoveryDaemonModule implements Module
         $database = $dic->import(new PostgresModule($this->postgresConfig));
         $logger = $dic->import(new LoggingModule());
         $eventStore = $dic->import(new EventStoreModule($database));
-        $eventBus = $dic->import(new EventBusModule($eventStore));
-        $source = $dic->import(new HabrCareerModule($this->habrCareerConfig));
+        $catalogSubscriber = $dic->import(new VacancyCatalogModule($database));
+        $eventBus = $dic->import(new EventBusModule($eventStore, [$catalogSubscriber]));
+        $dic->import(new HabrCareerModule($this->habrCareerConfig));
 
         $discoverVacancies = $dic->import(new VacancyDiscoveryModule($database, $eventBus, $logger));
 
