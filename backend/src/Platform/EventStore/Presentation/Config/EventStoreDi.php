@@ -33,7 +33,6 @@ final readonly class EventStoreDi implements Module
     {
         return $dic
             ->object(PostgresEventStore::class)
-            ->doNotAutowire()
             ->arg('database', $this->database);
     }
 }

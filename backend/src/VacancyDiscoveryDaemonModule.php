@@ -6,10 +6,10 @@ namespace App;
 
 use App\Platform\EventBus\Presentation\Config\EventBusDi;
 use App\Platform\EventStore\Presentation\Config\EventStoreDi;
-use App\Platform\Logging\Presentation\Config\LoggingDi;
+use App\Platform\Logging\Presentation\Config\LoggergDi;
 use App\Platform\Postgres\Presentation\Config\PostgresEnv;
 use App\Platform\Postgres\Presentation\Config\PostgresDi;
-use App\VacancyCatalog\Presentation\Config\VacancyCatalogDi;
+use App\VacancyCatalog\Presentation\Config\VacancyCatalogEventSubscriberDi;
 use App\VacancyDiscovery\Presentation\Config\HabrCareerEnv;
 use App\VacancyDiscovery\Presentation\Config\HabrCareerDi;
 use App\VacancyDiscovery\Presentation\Config\VacancyDiscoveryDi;
@@ -37,7 +37,7 @@ final readonly class VacancyDiscoveryDaemonModule implements Module
     public function configure(Dic $dic): Ref
     {
         $database = $dic->import(new PostgresDi($this->postgresConfig));
-        $logger = $dic->import(new LoggingDi());
+        $logger = $dic->import(new LoggergDi());
         $eventStore = $dic->import(new EventStoreDi($database));
         $catalogSubscriber = $dic->import(new VacancyCatalogDi($database));
         $eventBus = $dic->import(new EventBusDi($eventStore, [$catalogSubscriber]));
@@ -47,7 +47,6 @@ final readonly class VacancyDiscoveryDaemonModule implements Module
 
         return $dic
             ->object(DiscoverVacanciesDaemon::class)
-            ->doNotAutowire()
             ->args([
                 'discoverVacancies' => $discoverVacancies,
                 'logger' => $logger,

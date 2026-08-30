@@ -28,7 +28,7 @@ final readonly class MigrateModule implements Module
     /**
      * Собирает технические модули приложения.
      */
-    public function configure(Dic $dic): mixed
+    public function configure(Dic $dic): Ref
     {
         $database = $dic->import(new PostgresDi($this->postgresConfig));
         return $dic->import(new MigrationDi(

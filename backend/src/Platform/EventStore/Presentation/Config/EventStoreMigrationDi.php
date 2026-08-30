@@ -22,6 +22,6 @@ final readonly class EventStoreMigrationDi implements Module
      */
     public function configure(Dic $dic): Ref
     {
-        return $dic->object(EventStoreMigrationProvider::class)->doNotAutowire();
+        return $dic->object(EventStoreMigrationProvider::class);
     }
 }

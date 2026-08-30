@@ -41,18 +41,15 @@ final readonly class VacancyDiscoveryDi implements Module
     public function configure(Dic $dic): Ref
     {
         $sources = $dic->taggedList(VacancySourceTag::class);
-        $deduplicator = $dic
+        $dic
             ->object(PostgresVacancyDeduplicator::class)
-            ->doNotAutowire()
             ->arg('database', $this->database)
             ->bind(objectT(VacancyDeduplicator::class));
 
         return $dic
             ->object(DiscoverVacancies::class)
-            ->doNotAutowire()
             ->args([
                 'sources' => $sources,
-                'deduplicator' => $deduplicator,
                 'eventBus' => $this->eventBus,
                 'logger' => $this->logger,
             ]);

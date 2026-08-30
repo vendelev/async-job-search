@@ -22,6 +22,6 @@ final readonly class VacancyCatalogMigrationDi implements Module
      */
     public function configure(Dic $dic): Ref
     {
-        return $dic->object(VacancyCatalogMigrationProvider::class)->doNotAutowire();
+        return $dic->object(VacancyCatalogMigrationProvider::class);
     }
 }

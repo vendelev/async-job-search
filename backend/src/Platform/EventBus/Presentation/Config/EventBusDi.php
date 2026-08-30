@@ -38,17 +38,14 @@ final readonly class EventBusDi implements Module
      */
     public function configure(Dic $dic): Ref
     {
-        $clock = $dic
+        $dic
             ->object(WallClock::class)
-            ->doNotAutowire()
             ->bind(objectT(ClockInterface::class));
 
         return $dic
             ->object(InMemoryEventBus::class)
-            ->doNotAutowire()
             ->args([
                 'eventStore' => $this->eventStore,
-                'clock' => $clock,
                 'subscribers' => $this->subscribers,
             ])
             ->bind(objectT(EventBus::class));

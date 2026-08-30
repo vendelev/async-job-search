@@ -38,23 +38,19 @@ final readonly class MigrationDi implements Module
      */
     public function configure(Dic $dic): Ref
     {
-        $storage = $dic
+        $dic
             ->object(PostgresMigrationStorage::class)
-            ->doNotAutowire()
             ->arg('database', $this->database)
             ->bind(objectT(MigrationStorage::class));
 
-        $applyMigrations = $dic
+        $dic
             ->object(ApplyMigrations::class)
-            ->doNotAutowire()
             ->args([
-                'storage' => $storage,
                 'providers' => $this->providers,
-            ]);
+            ])
+            ->bind(objectT(ApplyMigrations::class));
 
         return $dic
-            ->object(MigrateCommand::class)
-            ->doNotAutowire()
-            ->arg('applyMigrations', $applyMigrations);
+            ->object(MigrateCommand::class);
     }
 }

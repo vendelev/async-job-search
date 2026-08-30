@@ -32,19 +32,16 @@ final readonly class HabrCareerDi implements Module
      */
     public function configure(Dic $dic): Ref
     {
-        $client = $dic
+        $dic
             ->object(HttpClient::class, $this->createHttpClient(...))
-            ->doNotAutowire();
-        $parser = $dic
+            ->bind(objectT(HttpClient::class));
+        $dic
             ->object(HabrCareerVacancyParser::class)
-            ->doNotAutowire();
+            ->bind(objectT(HabrCareerVacancyParser::class));
 
         return $dic
             ->object(HabrCareerVacancySource::class)
-            ->doNotAutowire()
             ->args([
-                'client' => $client,
-                'parser' => $parser,
                 'cookie' => $this->config->cookie(),
             ])
             ->bind(objectT(VacancySource::class))

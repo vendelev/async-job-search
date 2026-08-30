@@ -7,6 +7,7 @@ namespace App\Platform\Postgres\Presentation\Config;
 use Amp\Postgres\PostgresConfig as AmpPostgresConfig;
 use Amp\Postgres\PostgresConnectionPool;
 use App\Platform\Postgres\Domain\PostgresDatabase;
+use App\Platform\Postgres\Domain\PostgresExecutor;
 use App\Platform\Postgres\Infrastructure\AmpPostgresDatabase;
 use Thesis\Dic;
 use Thesis\Dic\Module;
@@ -31,14 +32,12 @@ final readonly class PostgresDi implements Module
      */
     public function configure(Dic $dic): Ref
     {
-        $pool = $dic
+        $dic
             ->object(PostgresConnectionPool::class, $this->createPool(...))
-            ->doNotAutowire();
+            ->bind(objectT(PostgresConnectionPool::class));
 
         return $dic
             ->object(AmpPostgresDatabase::class)
-            ->doNotAutowire()
-            ->arg('pool', $pool)
             ->bind(objectT(PostgresDatabase::class));
     }
 

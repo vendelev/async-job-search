@@ -16,7 +16,7 @@ use function Typhoon\Type\objectT;
 /**
  * @implements Module<Ref<LoggerInterface>>
  */
-final readonly class LoggingDi implements Module
+final readonly class LoggergDi implements Module
 {
     /**
      * Регистрирует PSR-3 logger приложения.
@@ -27,7 +27,6 @@ final readonly class LoggingDi implements Module
     {
         return $dic
             ->object(Logger::class, $this->createLogger(...))
-            ->doNotAutowire()
             ->bind(objectT(LoggerInterface::class));
     }
 

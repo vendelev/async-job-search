@@ -22,6 +22,6 @@ final readonly class VacancyDiscoveryMigrationDi implements Module
      */
     public function configure(Dic $dic): Ref
     {
-        return $dic->object(VacancyDiscoveryMigrationProvider::class)->doNotAutowire();
+        return $dic->object(VacancyDiscoveryMigrationProvider::class);
     }
 }
