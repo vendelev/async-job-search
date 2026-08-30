@@ -21,8 +21,14 @@ VacancyCatalog/
 │   └── VacancyCatalogMigrationProvider.php
 ├── Presentation/
 │   ├── Config/
+│   │   ├── VacancyCatalogEventSubscriberDi.php
+│   │   ├── VacancyCatalogHttpDi.php
 │   │   ├── VacancyCatalogMigrationDi.php
-│   │   └── VacancyCatalogDi.php
+│   │   └── VacancyCatalogRoutes.php
+│   ├── Http/
+│   │   └── Controller/
+│   │       ├── GetVacancyController.php
+│   │       └── ListVacanciesController.php
 │   └── Listener/VacancyDiscoveredSubscriber.php
 └── README.md
 ```
@@ -39,8 +45,8 @@ flowchart LR
 
 `Domain` публикует модель проекции и контракт хранилища. 
 `Application` реализует сценарии чтения. 
-`Infrastructure`содержит PostgreSQL-адаптер и provider миграции. 
-`Presentation` регистрирует зависимости и обрабатывает событие другого модуля.
+`Infrastructure` содержит PostgreSQL-адаптер и provider миграции.
+`Presentation` регистрирует зависимости, обрабатывает событие другого модуля и предоставляет HTTP-входы чтения.
 
 ## Предметная область
 
@@ -69,8 +75,15 @@ flowchart LR
 В `VacancyDiscoveryDaemonModule` subscriber передаётся в `EventBusDi`. 
 Поэтому в runtime опубликованное `VacancyDiscovered` доставляется в каталог через `EventBus`.
 
-HTTP-контроллеры, маршруты и консольные команды в модуле отсутствуют. 
-В текущем проекте нет готового HTTP composition root, поэтому HTTP-входы не реализованы.
+`VacancyCatalogHttpDi` создаёт use cases чтения, их контроллеры и `VacancyCatalogRoutes`. Последний реализует
+`RouteRegister` и помечается `HttpRouteTag`. `HttpModule` собирает tagged registrars в общий `Router`; точка
+входа `bin/http.php` запускает сервер.
+
+| Маршрут | Статус | Ответ |
+| --- | --- | --- |
+| `GET /vacancies` | `200` | `{"vacancies":[...]}`; элемент содержит `source`, `externalVacancyId`, `title`, `url`, `employerName`, `location` |
+| `GET /vacancies/{source}/{externalVacancyId}` | `200` | `{"vacancy":{...}}`; карточка дополнительно содержит `description` и `details` |
+| `GET /vacancies/{source}/{externalVacancyId}` | `404` | `{"error":"Вакансия не найдена"}` |
 
 ## Инфраструктура
 
@@ -89,8 +102,12 @@ HTTP-контроллеры, маршруты и консольные коман
 
 ## Зависимости и конфигурация
 
-`VacancyCatalogDi` принимает `Ref<PostgresDatabase>`, регистрирует `PostgresVacancyCatalog`, use cases и
-экспортирует `Ref<EventSubscriber>` для `EventBusDi`.
+`VacancyCatalogHttpDi` принимает `Ref<PostgresDatabase>` и регистрирует только зависимости HTTP-входов. Его export
+реализует `RouteRegister` и собирается HTTP-платформой по `HttpRouteTag`.
+
+`VacancyCatalogEventSubscriberDi` принимает тот же `Ref<PostgresDatabase>` и экспортирует только
+`Ref<EventSubscriber>` для `VacancyDiscoveryDaemonModule`. В каждом entry point создаётся отдельный
+`PostgresVacancyCatalog`, поэтому конфигурации не передают между собой use cases или контроллеры.
 
 Модуль использует:
 
@@ -110,10 +127,11 @@ HTTP-контроллеры, маршруты и консольные коман
 - unit-тест subscriber проверяет передачу вакансии из `VacancyDiscovered` в каталог;
 - integration-тест PostgreSQL-адаптера проверяет сохранение, чтение и идемпотентность вставки;
 - integration-тест миграции проверяет наличие таблицы пользовательской проекции.
+- integration-тест HTTP проверяет список, карточку и `404` через PostgreSQL.
 
 ## Ограничения
 
 - Список не поддерживает фильтрацию, лимит или пагинацию.
-- HTTP-входы для списка и карточки отсутствуют.
+- HTTP-слой не содержит аутентификации, middleware, versioning API и HTML-представлений.
 - Доставка определяется текущим `InMemoryEventBus`: она process-local и best-effort; сохранённое до аварии,
   но не доставленное событие автоматически не обрабатывается после рестарта.

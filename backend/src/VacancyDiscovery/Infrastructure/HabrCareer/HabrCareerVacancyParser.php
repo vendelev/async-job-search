@@ -15,7 +15,7 @@ use RuntimeException;
 
 final class HabrCareerVacancyParser
 {
-    private const string SOURCE = 'career.habr.com';
+    private const string SOURCE = 'habr-career';
 
     private const string BASE_URL = 'https://career.habr.com';
 

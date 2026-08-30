@@ -14,8 +14,6 @@ return new Configuration()
         [
             'revolt/event-loop',
             'sentry/sentry',
-            'amphp/http-server',
-            'amphp/http-server-router',
             'thesis/message-bus',
             'thesis/pgmq',
             'thesis/transaction',

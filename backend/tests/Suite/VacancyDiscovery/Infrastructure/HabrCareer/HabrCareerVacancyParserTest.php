@@ -45,7 +45,7 @@ final class HabrCareerVacancyParserTest extends TestCase
         );
 
         self::assertCount(1, $vacancies);
-        self::assertSame('career.habr.com', $vacancies[0]->source);
+        self::assertSame('habr-career', $vacancies[0]->source);
         self::assertSame('42', $vacancies[0]->externalVacancyId);
         self::assertSame('PHP developer', $vacancies[0]->title);
         self::assertSame('https://career.habr.com/vacancies/42?from=list', $vacancies[0]->url);

@@ -39,7 +39,7 @@ final readonly class VacancyDiscoveryDaemonModule implements Module
         $database = $dic->import(new PostgresDi($this->postgresConfig));
         $logger = $dic->import(new LoggergDi());
         $eventStore = $dic->import(new EventStoreDi($database));
-        $catalogSubscriber = $dic->import(new VacancyCatalogDi($database));
+        $catalogSubscriber = $dic->import(new VacancyCatalogEventSubscriberDi($database));
         $eventBus = $dic->import(new EventBusDi($eventStore, [$catalogSubscriber]));
         $dic->import(new HabrCareerDi($this->habrCareerEnv));
 

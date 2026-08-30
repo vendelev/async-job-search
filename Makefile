@@ -48,7 +48,7 @@ remigrate:
 	$(DOCKER_COMPOSE) up -d app
 	$(DOCKER_COMPOSE) exec -it app php bin/migrate.php
 
-php-test:
+php-test: migrate
 	$(DOCKER_COMPOSE) exec -it app composer test
 
 php-unit-tests:
