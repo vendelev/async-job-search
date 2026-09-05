@@ -6,17 +6,17 @@ use ShipMonk\ComposerDependencyAnalyser\Config\ErrorType;
 return new Configuration()
     ->ignoreErrorsOnPackages(
         [
+            'typhoon/type'
         ],
         [ErrorType::SHADOW_DEPENDENCY]
     )
     ->ignoreErrorsOnPackages(
         [
-            'amphp/amp',
-            'amphp/http-client',
-            'monolog/monolog',
-            'psr/log',
             'revolt/event-loop',
             'sentry/sentry',
+            'thesis/message-bus',
+            'thesis/pgmq',
+            'thesis/transaction',
         ],
         [ErrorType::UNUSED_DEPENDENCY]
     );

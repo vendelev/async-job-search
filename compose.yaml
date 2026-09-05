@@ -1,12 +1,47 @@
 services:
-  app:
-    build:
-      context: ./docker/php
+  daemon:
+    image: vendelev/async-job-search:php-2026-09-05
+    restart: always
     working_dir: /var/www
     init: true
     stop_grace_period: 30s
     volumes:
       - ./backend:/var/www
+    env_file:
+      - path: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["php", "bin/vacancy-discovery-daemon.php"]
+  app:
+    image: vendelev/async-job-search:php-2026-09-05
+    restart: always
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    env_file:
+      - path: .env
+    ports:
+      - "${HTTP_PORT}:${HTTP_PORT}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["php", "bin/http.php"]
+  postgres:
+    image: ghcr.io/pgmq/pg18-pgmq:v1.10.0
+    restart: unless-stopped
     environment:
-      SQLITE_DATABASE_PATH: ${SQLITE_DATABASE_PATH:-storage/app/database.sqlite}
-    command: ["php", "bin/daemon.php"]
+      POSTGRES_DB: ${POSTGRES_DB:-async_job_search}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      POSTGRES_USER: ${POSTGRES_USER:-async_job_search}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready --username=$$POSTGRES_USER --dbname=$$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+
+volumes:
+  postgres-data:

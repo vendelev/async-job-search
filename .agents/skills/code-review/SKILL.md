@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes — Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X".
+description: Review a diff against standards and requirements, or assess review feedback before applying it.
 ---
 
 Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
@@ -10,7 +10,23 @@ Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
 Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
 
-The issue tracker should have been provided to you — run `/setup-matt-pocock-skills` if `docs/agents/issue-tracker.md` is missing.
+## Assessing review feedback
+
+Use this branch when the user supplies review comments and asks to evaluate or apply them. Do not start the
+fixed-point review flow unless the user also requests a review.
+
+1. Read every comment before making an edit. Group comments whose meaning or scope is unclear.
+2. For each clear comment, check the relevant code, tests, requirements, and documented standards. External
+   feedback does not override project decisions or the user's instructions.
+3. Ask for clarification on every ambiguous comment before applying any of them. A partial understanding can make
+   related fixes inconsistent.
+4. State which comments are valid, invalid, or need clarification, with concise technical reasons. For a rejected
+   comment, point to the requirement, existing behaviour, or test that conflicts with it.
+5. Apply validated comments one at a time. Run the relevant verification after each behavioural change, then report
+   exactly what changed and what remains unresolved.
+
+Use `docs/agents/issue-tracker.md` when it exists. If an issue is the only available spec source and tracker
+configuration is missing, ask the user for the issue URL or tracker workflow; do not run setup as part of a review.
 
 ## Process
 

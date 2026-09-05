@@ -2,7 +2,7 @@ include .env
 
 DOCKER_COMPOSE = docker compose
 
-.PHONY: help build install composer-install up down restart daemon migrate remigrate search-once php-test php-unit-tests php-cli php-log
+.PHONY: help build install composer-install up down restart vacancy-discovery-daemon migrate remigrate search-once php-test php-unit-tests php-cli app-log daemon-log
 
 H1 = echo === ${1} ===
 BR = echo
@@ -11,22 +11,21 @@ TAB = echo "\t"
 help:
 	@$(call H1,Application)
 	@$(TAB) make install - Собрать образ и установить Composer-зависимости.
-	@$(TAB) make up - Запустить daemon в фоне.
+	@$(TAB) make up - Запустить сервисы приложения в фоне.
 	@$(TAB) make down - Остановить и удалить контейнеры.
-	@$(TAB) make restart - Перезапустить daemon.
-	@$(TAB) make daemon - Запустить daemon в текущем терминале.
-	@$(TAB) make migrate - Применить миграции SQLite.
-	@$(TAB) make remigrate - Удалить SQLite-базу и применить миграции заново.
-	@$(TAB) make search-once - Выполнить один поиск вакансий.
+	@$(TAB) make restart - Перезапустить сервисы приложения.
+	@$(TAB) make migrate - Применить миграции PostgreSQL.
+	@$(TAB) make remigrate - Удалить PostgreSQL volume и применить миграции заново.
 	@$(call BR)
 	@$(call H1,PHP)
 	@$(TAB) make php-test - Выполнить Composer-проверки.
 	@$(TAB) make php-unit-tests - Запустить PHPUnit. TEST=... выбирает тест.
 	@$(TAB) make php-cli - Открыть Bash в PHP-контейнере.
-	@$(TAB) make php-log - Показать логи daemon.
+	@$(TAB) make app-log - Показать логи HTTP-сервера.
+	@$(TAB) make daemon-log - Показать логи daemon поиска вакансий.
 
 build:
-	$(DOCKER_COMPOSE) build
+	$(DOCKER_COMPOSE) -f compose.build.yml build
 
 install: build composer-install
 
@@ -34,37 +33,37 @@ composer-install:
 	$(DOCKER_COMPOSE) run --rm app composer install
 
 up:
-	$(DOCKER_COMPOSE) up --detach app
+	$(DOCKER_COMPOSE) up -d
 
 down:
 	$(DOCKER_COMPOSE) down
 
 restart: down up
 
-daemon:
-	$(DOCKER_COMPOSE) up app
-
 migrate:
-	$(DOCKER_COMPOSE) run --rm app php bin/migrate.php
+	$(DOCKER_COMPOSE) exec -it app php bin/migrate.php
 
 remigrate:
-	$(DOCKER_COMPOSE) run --rm app sh -c 'rm -f "$$SQLITE_DATABASE_PATH" "$$SQLITE_DATABASE_PATH-shm" "$$SQLITE_DATABASE_PATH-wal" && php bin/migrate.php'
+	$(DOCKER_COMPOSE) down --volumes
+	$(DOCKER_COMPOSE) up -d app
+	$(DOCKER_COMPOSE) exec -it app php bin/migrate.php
 
-search-once:
-	$(DOCKER_COMPOSE) run --rm app php bin/search-once.php
-
-php-test:
-	$(DOCKER_COMPOSE) run --rm app composer test
+php-test: migrate
+	$(DOCKER_COMPOSE) exec -it app composer fix
+	$(DOCKER_COMPOSE) exec -it app composer test
 
 php-unit-tests:
 ifeq ($(TEST),)
-	$(DOCKER_COMPOSE) run --rm app composer phpunit
+	$(DOCKER_COMPOSE) exec -it app composer phpunit
 else
-	$(DOCKER_COMPOSE) run --rm app composer phpunit -- $(TEST)
+	$(DOCKER_COMPOSE) exec -it app composer phpunit -- $(TEST)
 endif
 
 php-cli:
-	$(DOCKER_COMPOSE) run --rm app bash
+	$(DOCKER_COMPOSE) exec -it app bash
 
-php-log:
+app-log:
+	$(DOCKER_COMPOSE) logs app
+
+daemon-log:
 	$(DOCKER_COMPOSE) logs app
