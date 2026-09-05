@@ -53,6 +53,47 @@ final class DiscoverVacanciesTest extends TestCase
     }
 
     #[Test]
+    #[TestDox('Логирует количество вакансий, полученных от источника')]
+    public function itLogsTheNumberOfVacanciesReceivedFromTheSource(): void
+    {
+        $logger = new class extends AbstractLogger {
+            /**
+             * @var list<array{level: mixed, message: string|Stringable, context: array<mixed>}>
+             */
+            public array $records = [];
+
+            public function log($level, string|Stringable $message, array $context = []): void
+            {
+                $this->records[] = [
+                    'level' => $level,
+                    'message' => $message,
+                    'context' => $context,
+                ];
+            }
+        };
+        $source = $this->source($this->vacancy('hh', '42'), $this->vacancy('hh', '43'));
+        $useCase = new DiscoverVacancies(
+            [$source],
+            $this->deduplicator(),
+            $this->eventBus(),
+            $logger,
+        );
+
+        $useCase->execute();
+
+        self::assertSame([
+            [
+                'level' => 'info',
+                'message' => 'Источник вакансий завершил поиск.',
+                'context' => [
+                    'source' => $source::class,
+                    'vacancy_count' => 2,
+                ],
+            ],
+        ], $logger->records);
+    }
+
+    #[Test]
     #[TestDox('Логирует ошибку источника и завершает остальные источники группы')]
     public function itLogsSourceErrorsAfterTheSourceBatchCompletes(): void
     {
@@ -87,9 +128,9 @@ final class DiscoverVacanciesTest extends TestCase
         $useCase->execute();
 
         self::assertCount(1, $eventBus->events);
-        self::assertCount(1, $logger->records);
-        self::assertSame('error', $logger->records[0]['level']);
-        self::assertInstanceOf(RuntimeException::class, $logger->records[0]['context']['exception']);
+        self::assertCount(2, $logger->records);
+        self::assertSame('error', $logger->records[1]['level']);
+        self::assertInstanceOf(RuntimeException::class, $logger->records[1]['context']['exception']);
     }
 
     #[Test]
@@ -274,7 +315,7 @@ final class DiscoverVacanciesTest extends TestCase
     }
 
     /**
-     * @return object{events: list<DomainEvent>}&EventBus
+     * @return EventBus&object{events: list<DomainEvent>}
      */
     private function eventBus(): object
     {

@@ -28,10 +28,16 @@ final readonly class DiscoverVacanciesDaemon
     public function run(): int
     {
         $cancellation = new SignalCancellation([SIGINT, SIGTERM]);
+        $this->logger->info('Daemon поиска вакансий запущен.', [
+            'interval_seconds' => self::INTERVAL_SECONDS,
+        ]);
 
         while (!$cancellation->isRequested()) {
+            $this->logger->info('Запускается поиск вакансий.');
+
             try {
                 $this->discoverVacancies->execute($cancellation);
+                $this->logger->info('Поиск вакансий завершён.');
             } catch (Throwable $exception) {
                 $this->logger->error('Поиск вакансий завершился ошибкой.', [
                     'exception' => $exception,
@@ -41,9 +47,11 @@ final readonly class DiscoverVacanciesDaemon
             try {
                 delay(self::INTERVAL_SECONDS, cancellation: $cancellation);
             } catch (CancelledException) {
-                return 0;
+                break;
             }
         }
+
+        $this->logger->info('Daemon поиска вакансий остановлен.');
 
         return 0;
     }

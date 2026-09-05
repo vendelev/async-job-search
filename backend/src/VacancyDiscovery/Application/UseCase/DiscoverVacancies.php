@@ -60,24 +60,37 @@ final readonly class DiscoverVacancies
     /**
      * Находит и публикует новые вакансии одного источника.
      */
-    private function discover(VacancySource $source, ?Cancellation $cancellation): void
+    private function discover(VacancySource $source, ?Cancellation $cancellation): int
     {
+        $vacancyCount = 0;
+
         foreach ($source->vacancies($cancellation) as $vacancy) {
+            ++$vacancyCount;
+
             if (!$this->deduplicator->register($vacancy->id())) {
                 continue;
             }
 
             $this->eventBus->publish(new VacancyDiscovered($vacancy));
         }
+
+        return $vacancyCount;
     }
 
     /**
-     * @param list<Future<void>> $futures
+     * @param list<Future<int>> $futures
      * @param list<VacancySource> $sources
      */
     private function awaitSources(array $futures, array $sources): void
     {
-        [$errors] = awaitAll($futures);
+        [$errors, $vacancyCounts] = awaitAll($futures);
+
+        foreach ($vacancyCounts as $index => $vacancyCount) {
+            $this->logger->info('Источник вакансий завершил поиск.', [
+                'source' => $sources[$index]::class,
+                'vacancy_count' => $vacancyCount,
+            ]);
+        }
 
         foreach ($errors as $index => $exception) {
             $this->logger->error('Источник вакансий завершился ошибкой.', [
