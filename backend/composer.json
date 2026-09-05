@@ -20,6 +20,7 @@
         "amphp/http-client": "^5.3.6",
         "amphp/http-server": "^3.4.6",
         "amphp/http-server-router": "^2.0",
+        "amphp/log": "^2.0",
         "amphp/postgres": "^2.2.1",
         "monolog/monolog": "^3.10",
         "psr/clock": "^1.0",
