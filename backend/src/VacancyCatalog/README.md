@@ -26,9 +26,16 @@ VacancyCatalog/
 │   │   ├── VacancyCatalogMigrationDi.php
 │   │   └── VacancyCatalogRoutes.php
 │   ├── Http/
-│   │   └── Controller/
-│   │       ├── GetVacancyController.php
-│   │       └── ListVacanciesController.php
+│   │   ├── Controller/
+│   │   │   ├── GetVacancyController.php
+│   │   │   └── ListVacanciesController.php
+│   │   └── View/
+│   │       ├── Template/
+│   │       │   ├── layout.php
+│   │       │   ├── list.php
+│   │       │   ├── not-found.php
+│   │       │   └── vacancy.php
+│   │       └── VacancyCatalogView.php
 │   └── Listener/VacancyDiscoveredSubscriber.php
 └── README.md
 ```
@@ -53,7 +60,7 @@ flowchart LR
 - `Vacancy` содержит полные данные карточки: источник, внешний идентификатор, заголовок, URL, работодателя,
   локацию, описание и дополнительные JSON-совместимые сведения.
 - `VacancyListItem` содержит данные, необходимые для списка: источник, внешний идентификатор, заголовок, URL,
-  работодателя и локацию.
+  работодателя, локацию и зарплату.
 - `VacancyCatalog` определяет сохранение `ExternalVacancy`, получение списка и карточки по
   `ExternalVacancyId`. Внешний идентификатор является парой `source` и `externalVacancyId`.
 
@@ -75,15 +82,24 @@ flowchart LR
 В `VacancyDiscoveryDaemonModule` subscriber передаётся в `EventBusDi`. 
 Поэтому в runtime опубликованное `VacancyDiscovered` доставляется в каталог через `EventBus`.
 
-`VacancyCatalogHttpDi` создаёт use cases чтения, их контроллеры и `VacancyCatalogRoutes`. Последний реализует
-`RouteRegister` и помечается `HttpRouteTag`. `HttpModule` собирает tagged registrars в общий `Router`; точка
-входа `bin/http.php` запускает сервер.
+`VacancyCatalogHttpDi` создаёт use cases чтения, контроллеры, HTML-представление `VacancyCatalogView` и
+`VacancyCatalogRoutes`. Последний реализует `RouteRegister` и помечается `HttpRouteTag`. `HttpModule` собирает
+tagged registrars в общий `Router`; точка входа `bin/http.php` запускает сервер.
 
 | Маршрут | Статус | Ответ |
 | --- | --- | --- |
-| `GET /vacancies` | `200` | `{"vacancies":[...]}`; элемент содержит `source`, `externalVacancyId`, `title`, `url`, `employerName`, `location` |
-| `GET /vacancies/{source}/{externalVacancyId}` | `200` | `{"vacancy":{...}}`; карточка дополнительно содержит `description` и `details` |
-| `GET /vacancies/{source}/{externalVacancyId}` | `404` | `{"error":"Вакансия не найдена"}` |
+| `GET /vacancies` | `200` | HTML-список с заголовком, работодателем, локацией, зарплатой и ссылками на карточки |
+| `GET /vacancies` | `200` | При отсутствии записей содержит текст «Вакансии не найдены» |
+| `GET /vacancies/{source}/{externalVacancyId}` | `200` | HTML-карточка с основными полями, первоисточником, описанием, дополнительными сведениями и ссылкой на список |
+| `GET /vacancies/{source}/{externalVacancyId}` | `404` | HTML-страница с текстом «Вакансия не найдена» и ссылкой на список |
+
+`VacancyCatalogView` рендерит нативные PHP-шаблоны. Он передаёт дочерний шаблон в буфер, помещает результат в
+`layout.php` и передаёт шаблонам только явно заданные Domain DTO и callback-функции операций представления. Шаблоны
+не имеют доступа к экземпляру view.
+
+Текст и атрибуты из внешних источников экранируются в шаблонах. Ссылкой на первоисточник может быть только
+абсолютный URL со схемой `http` или `https`; при недопустимом URL карточка показывает «Первоисточник недоступен»
+без ссылки.
 
 ## Инфраструктура
 
@@ -127,11 +143,16 @@ flowchart LR
 - unit-тест subscriber проверяет передачу вакансии из `VacancyDiscovered` в каталог;
 - integration-тест PostgreSQL-адаптера проверяет сохранение, чтение и идемпотентность вставки;
 - integration-тест миграции проверяет наличие таблицы пользовательской проекции.
-- integration-тест HTTP проверяет список, карточку и `404` через PostgreSQL.
+- integration-тест HTTP проверяет HTML-список, карточку, отсутствие вакансий и зарплаты, экранирование данных,
+  небезопасный URL первоисточника и HTML `404` через PostgreSQL.
 
 ## Ограничения
 
 - Список не поддерживает фильтрацию, лимит или пагинацию.
-- HTTP-слой не содержит аутентификации, middleware, versioning API и HTML-представлений.
+- HTTP-слой не содержит аутентификации, middleware, versioning API и собственного CSS.
+- Layout и механизм рендеринга ограничены `VacancyCatalog/Presentation/Http/View`. Общий компонент допускается
+  выделить в `Core` только после появления второго HTTP-модуля с такой потребностью.
+- Layout ограничен `lang="ru"`, UTF-8, `title` и содержимым страницы. Пустые описание и дополнительные сведения не
+  выводятся, а отсутствующие работодатель и локация показываются как «Не указано».
 - Доставка определяется текущим `InMemoryEventBus`: она process-local и best-effort; сохранённое до аварии,
   но не доставленное событие автоматически не обрабатывается после рестарта.

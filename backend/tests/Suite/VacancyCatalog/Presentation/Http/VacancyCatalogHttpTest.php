@@ -21,10 +21,13 @@ use App\VacancyCatalog\Infrastructure\PostgresVacancyCatalog;
 use App\VacancyCatalog\Presentation\Config\VacancyCatalogRoutes;
 use App\VacancyCatalog\Presentation\Http\Controller\GetVacancyController;
 use App\VacancyCatalog\Presentation\Http\Controller\ListVacanciesController;
+use App\VacancyCatalog\Presentation\Http\View\VacancyCatalogView;
+use App\VacancyCatalog\Presentation\Http\View\VacancyCatalogViewFormatter;
+use App\VacancyCatalog\Presentation\Http\View\VacancyCatalogTemplateRenderer;
 use App\VacancyDiscovery\Domain\Dto\ExternalVacancy;
 use Error;
-use JsonException;
 use League\Uri\Http;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
 use Psr\Log\NullLogger;
@@ -39,41 +42,43 @@ final class VacancyCatalogHttpTest extends AppTestCase
     /**
      * @throws BufferException Если тело ответа превышает буфер
      * @throws Error Если router не запущен
-     * @throws JsonException Если ответ не является JSON
      */
     #[Test]
-    #[TestDox('Возвращает JSON-список вакансий')]
+    #[TestDox('Возвращает HTML-список вакансий со ссылкой на карточку')]
     public function itReturnsVacancyList(): void
     {
         $this->withinTransaction(function (PostgresExecutor $database): void {
             $this->catalog($database)->add(
-                new ExternalVacancy('habr-career', '42', 'PHP developer', 'https://example.test/42', 'Acme', 'Remote'),
+                new ExternalVacancy(
+                    'habr-career',
+                    '42',
+                    'PHP developer',
+                    'https://example.test/42',
+                    'Acme',
+                    'Remote',
+                    details: ['salary' => '200 000 руб.'],
+                ),
             );
 
             $response = $this->router($database)->handleRequest($this->request('/vacancies'));
+            $body = $this->body($response);
 
             self::assertSame(HttpStatus::OK, $response->getStatus());
-            self::assertSame('application/json; charset=utf-8', $response->getHeader('content-type'));
-            self::assertSame([
-                'vacancies' => [[
-                    'source' => 'habr-career',
-                    'externalVacancyId' => '42',
-                    'title' => 'PHP developer',
-                    'url' => 'https://example.test/42',
-                    'employerName' => 'Acme',
-                    'location' => 'Remote',
-                ]],
-            ], $this->body($response));
+            self::assertSame('text/html; charset=utf-8', $response->getHeader('content-type'));
+            self::assertStringContainsString('<h1>Вакансии</h1>', $body);
+            self::assertStringContainsString('<a href="/vacancies/habr-career/42">PHP developer</a>', $body);
+            self::assertStringContainsString('Работодатель: Acme', $body);
+            self::assertStringContainsString('Локация: Remote', $body);
+            self::assertStringContainsString('Зарплата: 200 000 руб.', $body);
         });
     }
 
     /**
      * @throws BufferException Если тело ответа превышает буфер
      * @throws Error Если router не запущен
-     * @throws JsonException Если ответ не является JSON
      */
     #[Test]
-    #[TestDox('Возвращает JSON-карточку вакансии')]
+    #[TestDox('Возвращает HTML-карточку вакансии')]
     public function itReturnsVacancyCard(): void
     {
         $this->withinTransaction(function (PostgresExecutor $database): void {
@@ -89,29 +94,131 @@ final class VacancyCatalogHttpTest extends AppTestCase
             ));
 
             $response = $this->router($database)->handleRequest($this->request('/vacancies/habr-career/42'));
-
             $body = $this->body($response);
 
             self::assertSame(HttpStatus::OK, $response->getStatus());
-            self::assertSame('Develop backend services.', $body['vacancy']['description']);
-            self::assertSame(['salary' => '200000'], $body['vacancy']['details']);
+            self::assertSame('text/html; charset=utf-8', $response->getHeader('content-type'));
+            self::assertStringContainsString('<h1>PHP developer</h1>', $body);
+            self::assertStringContainsString('Develop backend services.', $body);
+            self::assertStringContainsString('<a href="https://example.test/42">Первоисточник</a>', $body);
+            self::assertStringContainsString('<th scope="row">salary</th><td>200000</td>', $body);
+            self::assertStringContainsString('<a href="/vacancies">К списку вакансий</a>', $body);
         });
     }
 
     /**
      * @throws BufferException Если тело ответа превышает буфер
      * @throws Error Если router не запущен
-     * @throws JsonException Если ответ не является JSON
      */
     #[Test]
-    #[TestDox('Возвращает 404 для отсутствующей вакансии')]
+    #[TestDox('Возвращает HTML-страницу пустого списка вакансий')]
+    public function itReturnsEmptyVacancyList(): void
+    {
+        $this->withinTransaction(function (PostgresExecutor $database): void {
+            $response = $this->router($database)->handleRequest($this->request('/vacancies'));
+
+            self::assertSame(HttpStatus::OK, $response->getStatus());
+            self::assertSame('text/html; charset=utf-8', $response->getHeader('content-type'));
+            self::assertStringContainsString('Вакансии не найдены', $this->body($response));
+        });
+    }
+
+    /**
+     * @throws BufferException Если тело ответа превышает буфер
+     * @throws Error Если router не запущен
+     */
+    #[Test]
+    #[TestDox('Показывает отсутствие зарплаты в списке вакансий')]
+    public function itShowsMissingSalary(): void
+    {
+        $this->withinTransaction(function (PostgresExecutor $database): void {
+            $this->catalog($database)->add(
+                new ExternalVacancy('habr-career', '42', 'PHP developer', 'https://example.test/42'),
+            );
+
+            $response = $this->router($database)->handleRequest($this->request('/vacancies'));
+
+            self::assertSame(HttpStatus::OK, $response->getStatus());
+            self::assertStringContainsString('Зарплата не указана', $this->body($response));
+        });
+    }
+
+    /**
+     * @throws BufferException Если тело ответа превышает буфер
+     * @throws Error Если router не запущен
+     */
+    #[Test]
+    #[TestDox('Экранирует данные вакансии из внешнего источника')]
+    public function itEscapesExternalVacancyData(): void
+    {
+        $this->withinTransaction(function (PostgresExecutor $database): void {
+            $this->catalog($database)->add(new ExternalVacancy(
+                'habr-career',
+                '42',
+                '<script>alert(1)</script>',
+                'https://example.test/42?title=\"><script>alert(1)</script>',
+                details: ['<script>key</script>' => ['<script>value</script>']],
+            ));
+
+            $response = $this->router($database)->handleRequest($this->request('/vacancies/habr-career/42'));
+            $body = $this->body($response);
+
+            self::assertSame(HttpStatus::OK, $response->getStatus());
+            self::assertStringNotContainsString('<script>', $body);
+            self::assertStringContainsString('&lt;script&gt;alert(1)&lt;/script&gt;', $body);
+            self::assertStringContainsString('&lt;script&gt;key&lt;/script&gt;', $body);
+        });
+    }
+
+    /**
+     * @throws BufferException Если тело ответа превышает буфер
+     * @throws Error Если router не запущен
+     */
+    #[Test]
+    #[DataProvider('unsafeSourceUrlProvider')]
+    #[TestDox('Не создаёт ссылку для небезопасного URL первоисточника')]
+    public function itDoesNotLinkToUnsafeSourceUrl(string $sourceUrl): void
+    {
+        $this->withinTransaction(function (PostgresExecutor $database) use ($sourceUrl): void {
+            $this->catalog($database)->add(
+                new ExternalVacancy('habr-career', '42', 'PHP developer', $sourceUrl),
+            );
+
+            $response = $this->router($database)->handleRequest($this->request('/vacancies/habr-career/42'));
+            $body = $this->body($response);
+
+            self::assertSame(HttpStatus::OK, $response->getStatus());
+            self::assertStringContainsString('Первоисточник недоступен', $body);
+            self::assertStringNotContainsString('href="' . $sourceUrl . '"', $body);
+            self::assertStringNotContainsString('href="#">Первоисточник</a>', $body);
+        });
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function unsafeSourceUrlProvider(): iterable
+    {
+        yield 'javascript-схема' => ['javascript:alert(1)'];
+        yield 'некорректный абсолютный URL' => ['https://'];
+    }
+
+    /**
+     * @throws BufferException Если тело ответа превышает буфер
+     * @throws Error Если router не запущен
+     */
+    #[Test]
+    #[TestDox('Возвращает HTML 404 для отсутствующей вакансии')]
     public function itReturnsNotFoundForMissingVacancy(): void
     {
         $this->withinTransaction(function (PostgresExecutor $database): void {
             $response = $this->router($database)->handleRequest($this->request('/vacancies/habr-career/missing'));
+            $body = $this->body($response);
 
             self::assertSame(HttpStatus::NOT_FOUND, $response->getStatus());
-            self::assertSame(['error' => 'Вакансия не найдена'], $this->body($response));
+            self::assertSame('text/html; charset=utf-8', $response->getHeader('content-type'));
+            self::assertStringContainsString('Вакансия не найдена', $body);
+            self::assertStringContainsString('<a href="/vacancies">К списку вакансий</a>', $body);
         });
     }
 
@@ -129,9 +236,11 @@ final class VacancyCatalogHttpTest extends AppTestCase
         $this->server->expose('127.0.0.1:0');
 
         $router = new Router($this->server, $logger, $errorHandler);
+        $formatter = new VacancyCatalogViewFormatter();
+        $view = new VacancyCatalogView($formatter, new VacancyCatalogTemplateRenderer($formatter));
         new VacancyCatalogRoutes(
-            new ListVacanciesController(new ListVacancies($this->catalog($database))),
-            new GetVacancyController(new GetVacancy($this->catalog($database))),
+            new ListVacanciesController(new ListVacancies($this->catalog($database)), $view),
+            new GetVacancyController(new GetVacancy($this->catalog($database)), $view),
         )->register($router);
         $this->server->start($router, $errorHandler);
 
@@ -164,18 +273,10 @@ final class VacancyCatalogHttpTest extends AppTestCase
     }
 
     /**
-     * @return array<string, mixed>
-     *
      * @throws BufferException Если тело ответа превышает буфер
-     * @throws JsonException Если тело HTTP-ответа не является JSON
      */
-    private function body(Response $response): array
+    private function body(Response $response): string
     {
-        $body = buffer($response->getBody());
-
-        /** @var array<string, mixed> $decoded */
-        $decoded = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
-
-        return $decoded;
+        return buffer($response->getBody());
     }
 }

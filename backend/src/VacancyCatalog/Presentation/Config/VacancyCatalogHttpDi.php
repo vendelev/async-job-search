@@ -13,6 +13,9 @@ use App\VacancyCatalog\Domain\VacancyCatalog;
 use App\VacancyCatalog\Infrastructure\PostgresVacancyCatalog;
 use App\VacancyCatalog\Presentation\Http\Controller\GetVacancyController;
 use App\VacancyCatalog\Presentation\Http\Controller\ListVacanciesController;
+use App\VacancyCatalog\Presentation\Http\View\VacancyCatalogView;
+use App\VacancyCatalog\Presentation\Http\View\VacancyCatalogViewFormatter;
+use App\VacancyCatalog\Presentation\Http\View\VacancyCatalogTemplateRenderer;
 use Thesis\Dic;
 use Thesis\Dic\Module;
 use Thesis\Dic\Ref;
@@ -44,6 +47,9 @@ final readonly class VacancyCatalogHttpDi implements Module
             ->arg('database', $this->database)
             ->bind(objectT(VacancyCatalog::class));
         $dic->object(ListVacancies::class)->bind(objectT(ListVacancies::class));
+        $dic->object(VacancyCatalogViewFormatter::class)->bind(objectT(VacancyCatalogViewFormatter::class));
+        $dic->object(VacancyCatalogTemplateRenderer::class)->bind(objectT(VacancyCatalogTemplateRenderer::class));
+        $dic->object(VacancyCatalogView::class)->bind(objectT(VacancyCatalogView::class));
         $dic
             ->object(ListVacanciesController::class)
             ->bind(objectT(ListVacanciesController::class));

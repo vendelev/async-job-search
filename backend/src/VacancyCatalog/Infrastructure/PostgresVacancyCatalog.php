@@ -54,7 +54,7 @@ final readonly class PostgresVacancyCatalog implements VacancyCatalog
     public function list(): array
     {
         $result = $this->database->execute(
-            'SELECT source, external_vacancy_id, title, url, employer_name, location '
+            "SELECT source, external_vacancy_id, title, url, employer_name, location, details->>'salary' AS salary "
             . 'FROM vacancy_catalog_vacancies ORDER BY source, external_vacancy_id',
         );
 
@@ -68,7 +68,8 @@ final readonly class PostgresVacancyCatalog implements VacancyCatalog
              *     title: string,
              *     url: string,
              *     employer_name: ?string,
-             *     location: ?string
+             *     location: ?string,
+             *     salary: ?string
              * } $row
              */
 
@@ -79,6 +80,7 @@ final readonly class PostgresVacancyCatalog implements VacancyCatalog
                 $row['url'],
                 $row['employer_name'],
                 $row['location'],
+                $row['salary'],
             );
         }
 

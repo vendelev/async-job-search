@@ -13,6 +13,7 @@ final readonly class VacancyListItem
         public string $url,
         public ?string $employerName,
         public ?string $location,
+        public ?string $salary,
     ) {
     }
 }

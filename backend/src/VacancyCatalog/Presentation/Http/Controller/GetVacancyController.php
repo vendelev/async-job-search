@@ -13,18 +13,20 @@ use Amp\Http\Server\Router;
 use App\VacancyCatalog\Application\UseCase\GetVacancy;
 use App\VacancyCatalog\Domain\Dto\Vacancy;
 use App\VacancyDiscovery\Domain\ExternalVacancyId;
+use App\VacancyCatalog\Presentation\Http\View\VacancyCatalogView;
 use JsonException;
 
 final readonly class GetVacancyController implements RequestHandler
 {
     public function __construct(
         private GetVacancy $getVacancy,
+        private VacancyCatalogView $view,
     ) {
     }
 
     /**
-     * @throws JsonException Если данные вакансии нельзя закодировать в JSON
      * @throws MissingAttributeError Если router не передал path-параметры
+     * @throws JsonException Если дополнительные сведения нельзя представить в JSON
      */
     public function handleRequest(Request $request): Response
     {
@@ -36,40 +38,17 @@ final readonly class GetVacancyController implements RequestHandler
         $vacancy = $this->getVacancy->execute(new ExternalVacancyId($source, $externalVacancyId));
 
         if (!$vacancy instanceof Vacancy) {
-            return $this->json(HttpStatus::NOT_FOUND, ['error' => 'Вакансия не найдена']);
+            return new Response(
+                HttpStatus::NOT_FOUND,
+                ['content-type' => 'text/html; charset=utf-8'],
+                $this->view->notFound(),
+            );
         }
 
-        return $this->json(HttpStatus::OK, ['vacancy' => $this->vacancy($vacancy)]);
-    }
-
-    /**
-     * @param array<string, mixed> $body
-     *
-     * @throws JsonException Если тело нельзя закодировать в JSON
-     */
-    private function json(int $status, array $body): Response
-    {
         return new Response(
-            $status,
-            ['content-type' => 'application/json; charset=utf-8'],
-            json_encode($body, JSON_THROW_ON_ERROR),
+            HttpStatus::OK,
+            ['content-type' => 'text/html; charset=utf-8'],
+            $this->view->vacancy($vacancy),
         );
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function vacancy(Vacancy $vacancy): array
-    {
-        return [
-            'source' => $vacancy->source,
-            'externalVacancyId' => $vacancy->externalVacancyId,
-            'title' => $vacancy->title,
-            'url' => $vacancy->url,
-            'employerName' => $vacancy->employerName,
-            'location' => $vacancy->location,
-            'description' => $vacancy->description,
-            'details' => $vacancy->details,
-        ];
     }
 }

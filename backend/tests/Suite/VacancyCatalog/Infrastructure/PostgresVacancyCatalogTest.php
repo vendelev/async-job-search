@@ -36,6 +36,7 @@ final class PostgresVacancyCatalogTest extends AppTestCase
 
             self::assertCount(1, $catalog->list());
             self::assertSame('PHP developer', $catalog->list()[0]->title);
+            self::assertSame('200000', $catalog->list()[0]->salary);
 
             $storedVacancy = $catalog->get(new ExternalVacancyId('habr-career', '42'));
 

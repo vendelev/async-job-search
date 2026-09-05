@@ -27,6 +27,7 @@ final class ListVacanciesTest extends TestCase
             'https://example.test/42',
             'Acme',
             'Remote',
+            '200000',
         )];
         $useCase = new ListVacancies(new readonly class ($vacancies) implements VacancyCatalog {
             /**
