@@ -54,8 +54,10 @@ final readonly class PostgresVacancyCatalog implements VacancyCatalog
     public function list(): array
     {
         $result = $this->database->execute(
-            "SELECT source, external_vacancy_id, title, url, employer_name, location, details->>'salary' AS salary "
-            . 'FROM vacancy_catalog_vacancies ORDER BY source, external_vacancy_id',
+            <<<'SQL'
+                SELECT source, external_vacancy_id, title, url, employer_name, location, details->>'salary' AS salary
+                FROM vacancy_catalog_vacancies ORDER BY source, external_vacancy_id
+                SQL,
         );
 
         $vacancies = [];

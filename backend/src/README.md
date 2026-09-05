@@ -1,48 +1,52 @@
-# Composition Root
+# Корневые модули композиции
 
-`MigrateModule` в `MigrateModule.php` является composition root приложения. 
-Он не создаёт подключения или адаптеры напрямую: импортирует технические модули и
-передаёт между ними только `Ref<T>` exports.
+Каждая точка входа собирает только зависимости своего процесса через отдельный корневой модуль композиции. Корневые модули
+не создают подключения или адаптеры напрямую: импортируют технические и прикладные модули и передают между ними
+только `Ref<T>` exports.
 
-## Текущая композиция
+| Точка входа | Корневой модуль | Назначение |
+| --- | --- | --- |
+| `backend/bin/migrate.php` | `MigrateModule` | Применяет миграции PostgreSQL. |
+| `backend/bin/vacancy-discovery-daemon.php` | `VacancyDiscoveryDaemonModule` | Периодически получает вакансии и публикует события. |
+| `backend/bin/http.php` | `HttpModule` | Запускает HTTP-сервер каталога вакансий. |
+
+## Композиция миграций
 
 ```mermaid
 flowchart LR
-    Config[PostgresEnv] --> AppModule
-    AppModule --> PostgresDi
+    Config[PostgresEnv] --> MigrateModule
+    MigrateModule --> PostgresDi
     PostgresDi -->|Ref<PostgresDatabase>| MigrationDi
-    AppModule --> EventStoreMigrationDi
+    MigrateModule --> EventStoreMigrationDi
     EventStoreMigrationDi -->|Ref<MigrationProvider>| MigrationDi
-    MigrationDi -->|Ref<MigrateCommand>| AppModule
+    MigrateModule --> VacancyCatalogMigrationDi
+    MigrateModule --> VacancyDiscoveryMigrationDi
+    MigrationDi -->|Ref<MigrateCommand>| MigrateModule
 ```
 
-Порядок сборки в `AppModule::configure()`:
+Порядок сборки в `MigrateModule::configure()`:
 
 1. `PostgresDi` создаёт общий async pool PostgreSQL и экспортирует `Ref<PostgresDatabase>`.
 2. `EventStoreMigrationDi` экспортирует `Ref<MigrationProvider>` с миграцией таблицы журнала событий.
-3. `MigrationDi` получает оба export и возвращает `Ref<MigrateCommand>`.
+3. `VacancyCatalogMigrationDi` и `VacancyDiscoveryMigrationDi` экспортируют миграции прикладных модулей.
+4. `MigrationDi` получает PostgreSQL и все `Ref<MigrationProvider>`, затем возвращает `Ref<MigrateCommand>`.
 
 `backend/bin/migrate.php` создаёт `PostgresEnv` из окружения, передаёт его
 в `MigrateModule` и запускает экспортированный `MigrateCommand`.
 
-## Runtime EventStore
+## Runtime-процессы
 
-`EventStoreDi` существует, но пока не импортируется корневым модулем:
-реализованного runtime-потребителя `EventStore` ещё нет. 
-Его миграции уже подключены независимо через `EventStoreMigrationDi`.
+`VacancyDiscoveryDaemonModule` собирает общий пул PostgreSQL, логирование, `EventStoreDi`, `EventBusDi`,
+`VacancyCatalogEventSubscriberDi`, Habr Career и `VacancyDiscoveryDi`. Он возвращает
+`Ref<DiscoverVacanciesDaemon>` для запуска периодического поиска вакансий.
 
-`EventBus` уже реализован, но пока не импортируется корневым модулем: первого
-runtime-потребителя шины ещё нет. При его добавлении `MigrateModule` должен:
+`HttpModule` собирает общий пул PostgreSQL, логирование, HTTP-сервер и маршрутизаторы, зарегистрированные через
+`HttpRouteTag`. Сейчас HTTP-входы добавляет `VacancyCatalogHttpDi`. Модуль возвращает `Ref<ServerHttp>`.
 
-1. Импортировать `EventStoreDi`, передав ему `Ref<PostgresDatabase>`.
-2. Передать возвращённый `Ref<EventStore>` в `EventBusDi`.
-3. Импортировать `EventBusDi` и использовать его export на соответствующей точке входа.
-
-EventBus добавляет событие в EventStore до запуска обработчиков. 
-In-memory доставка не переживает рестарт процесса.
+EventBus добавляет событие в EventStore до запуска обработчиков. In-memory доставка не переживает рестарт процесса.
 
 ## Правило изменения композиции
 
-При добавлении модуля не передавайте его Infrastructure-объекты напрямую.
-Модуль должен экспортировать `Ref` на Domain-контракт, а `MigrateModule` передаёт эту ссылку следующему потребителю. 
+При добавлении модуля не передавайте его Infrastructure-объекты напрямую. Модуль должен экспортировать `Ref` на
+Domain-контракт, а корневой модуль соответствующей точки входа передаёт эту ссылку следующему потребителю.
 Одновременно обновляйте этот документ и README соответствующего модуля.
