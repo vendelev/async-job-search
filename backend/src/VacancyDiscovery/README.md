@@ -80,13 +80,13 @@ HTTP-входы и маршруты в модуле отсутствуют.
 `SIGINT` и `SIGTERM` отменяют дальнейшее ожидание и завершают daemon с кодом `0`. 
 Необработанная ошибка всего цикла записывается в logger, после чего daemon продолжает работу.
 
-Скрипт `backend/bin/vacancy-discovery-daemon.php` собирает daemon через `VacancyDiscoveryDaemonModule`.
-Этот composition root подключает PostgreSQL, журнал и шину событий, логирование, `VacancyCatalog` как
+Команда `backend/bin/app.php daemon:vacancy-discovery` собирает daemon через `VacancyDiscoveryDaemonDi`.
+Этот контекст подключает PostgreSQL, журнал и шину событий, логирование, `VacancyCatalog` как
 подписчика и источник Habr Career.
 
 Каждый подключённый source-модуль помечает свою реализацию `VacancySource` тегом `VacancySourceTag`.
 `VacancyDiscoveryDi` собирает помеченные источники через `Dic::taggedList()`. Чтобы подключить новый источник,
-его модуль нужно импортировать в `VacancyDiscoveryDaemonModule` до импорта `VacancyDiscoveryDi` и пометить
+его модуль нужно импортировать в `VacancyDiscoveryDaemonDi` до импорта `VacancyDiscoveryDi` и пометить
 экспортируемый `VacancySource` этим тегом.
 
 ## Инфраструктура
@@ -96,7 +96,7 @@ HTTP-входы и маршруты в модуле отсутствуют.
 `ON CONFLICT DO NOTHING` обеспечивают дедупликацию между запусками и источниками.
 
 `VacancyDiscoveryMigrationProvider` экспортирует миграцию `vacancy_discovery_001_create_seen_vacancies`. 
-Она импортируется корневым `MigrateModule`.
+Она импортируется `AppModule` и помечается `MigrationProviderTag`.
 
 `HabrCareerVacancySource` реализует `VacancySource` через `amphp/http-client`:
 

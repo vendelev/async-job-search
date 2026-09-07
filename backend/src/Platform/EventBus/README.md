@@ -37,8 +37,7 @@ EventBus/
 `EventBusDi` принимает `Ref<EventStore>` и список `Ref<EventSubscriber>`.
 Он создаёт `WallClock` и экспортирует только `Ref<EventBus>`.
 
-Модуль не импортирован в `MigrateModule`, пока нет прикладного publisher.
-Первый runtime-модуль передаст EventBus подписчиков через composition root.
+Модуль собирается в `VacancyDiscoveryDaemonDi`, где получает `EventStore` и подписчиков через composition root.
 
 ## Следующий шаг
 

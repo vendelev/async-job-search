@@ -7,17 +7,23 @@ namespace App\VacancyDiscovery\Presentation\Console;
 use Amp\CancelledException;
 use Amp\SignalCancellation;
 use App\VacancyDiscovery\Application\UseCase\DiscoverVacancies;
+use Closure;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Throwable;
 
 use function Amp\delay;
 
+#[AsCommand(name: 'daemon:vacancy-discovery', description: 'Периодически ищет вакансии.')]
 final readonly class DiscoverVacanciesDaemon
 {
     private const int INTERVAL_SECONDS = 600;
 
+    /**
+     * @param Closure(): DiscoverVacancies $discoverVacancies
+     */
     public function __construct(
-        private DiscoverVacancies $discoverVacancies,
+        private Closure $discoverVacancies,
         private LoggerInterface $logger,
     ) {
     }
@@ -25,9 +31,10 @@ final readonly class DiscoverVacanciesDaemon
     /**
      * Периодически запускает поиск вакансий до получения SIGINT или SIGTERM.
      */
-    public function run(): int
+    public function __invoke(): int
     {
         $cancellation = new SignalCancellation([SIGINT, SIGTERM]);
+        $discoverVacancies = ($this->discoverVacancies)();
         $this->logger->info('Daemon поиска вакансий запущен.', [
             'interval_seconds' => self::INTERVAL_SECONDS,
         ]);
@@ -36,7 +43,7 @@ final readonly class DiscoverVacanciesDaemon
             $this->logger->info('Запускается поиск вакансий.');
 
             try {
-                $this->discoverVacancies->execute($cancellation);
+                $discoverVacancies->execute($cancellation);
                 $this->logger->info('Поиск вакансий завершён.');
             } catch (Throwable $exception) {
                 $this->logger->error('Поиск вакансий завершился ошибкой.', [

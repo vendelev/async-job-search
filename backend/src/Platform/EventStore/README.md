@@ -38,15 +38,11 @@ EventStore/
 
 ## DI-Конфигурация
 
-`EventStoreDi` экспортирует только `Ref<EventStore>`.
-Он не импортируется `MigrateModule`, пока нет runtime-потребителя хранилища.
+`EventStoreDi` экспортирует только `Ref<EventStore>`. Его импортирует `VacancyDiscoveryDaemonDi`, который передаёт
+export в `EventBusDi` до запуска подписчиков.
 
-`EventBusDi` уже принимает `Ref<EventStore>` и добавляет событие в журнал
-до запуска его подписчиков. Когда появится первый runtime-потребитель шины,
-`MigrateModule` импортирует оба модуля и передаст export `EventStore` в `EventBusDi`.
-
-`EventStoreMigrationDi` экспортирует отдельно `Ref<MigrationProvider>`.
-Он уже импортируется `MigrateModule` и передаётся в `MigrationDi`.
+`EventStoreMigrationDi` экспортирует `Ref<MigrationProvider>` и помечает его `MigrationProviderTag`.
+`AppModule` импортирует этот модуль, а `MigrationDi` собирает tagged providers.
 
 ## Ограничения
 

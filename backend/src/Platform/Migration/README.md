@@ -34,8 +34,8 @@ flowchart LR
     Database --> PostgreSQL[(PostgreSQL)]
 ```
 
-`MigrationDi` связывает `PostgresMigrationStorage` с Domain-контрактом `MigrationStorage`, создаёт `ApplyMigrations` 
-и экспортирует `MigrateCommand`.
+`MigrationDi` связывает `PostgresMigrationStorage` с Domain-контрактом `MigrationStorage`, собирает providers по
+`Core\Presentation\Config\MigrationProviderTag`, создаёт `ApplyMigrations` и экспортирует `MigrateCommand`.
 
 ## Предметная область
 
@@ -46,9 +46,8 @@ flowchart LR
 - `MigrationStorage` - контракт журнала миграций: создаёт журнал, проверяет наличие версии и атомарно применяет одну миграцию.
 
 Модуль, которому нужна собственная PostgreSQL-схема, реализует `MigrationProvider` в своей Infrastructure и 
-экспортирует его из своего DI-модуля. 
-Например, `EventStoreMigrationDi` экспортирует `EventStoreMigrationProvider`; 
-корневой `MigrateModule` передаёт этот provider в `MigrationDi`.
+экспортирует его из своего DI-модуля и помечает `Core\Presentation\Config\MigrationProviderTag`. Например,
+`EventStoreMigrationDi` экспортирует и помечает `EventStoreMigrationProvider`.
 
 ## Бизнес-логика
 
@@ -62,10 +61,9 @@ flowchart LR
 
 ## Точки входа
 
-`backend/bin/migrate.php` создаёт `MigrateModule` с конфигурацией PostgreSQL и передаёт выполнение `MigrateCommand` 
-контейнеру через `Dic::run()`.
+`backend/bin/app.php migrate` запускает `MigrateCommand` через `AppModule` и `Dic::run()`.
 
-`MigrateCommand::execute()` асинхронно запускает `ApplyMigrations::execute()` и возвращает код завершения `0` при успехе. 
+`MigrateCommand::__invoke()` асинхронно запускает `ApplyMigrations::execute()` и возвращает код завершения `0` при успехе.
 Ошибки providers или PostgreSQL не перехватываются командой.
 
 ## Инфраструктура
@@ -88,7 +86,7 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
 
 ## Зависимости и конфигурация
 
-`MigrationDi` принимает ссылку на `PostgresDatabase` из модуля `Platform\Postgres` и список ссылок на `MigrationProvider`. 
+`MigrationDi` принимает ссылку на `PostgresDatabase` из модуля `Platform\Postgres` и собирает providers по тегу.
 Сам модуль не читает переменные окружения и не создаёт подключение к PostgreSQL.
 
 Для DI используется `thesis/dic`; выполнение команды использует `amphp/amp`. Настройки подключения к PostgreSQL принадлежат `Platform\Postgres\Presentation\Config\PostgresEnv`.
@@ -100,8 +98,7 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
 - `Domain/MigrationTest.php` проверяет валидацию DTO `Migration`.
 - `Application/UseCase/ApplyMigrationsTest.php` проверяет порядок и идемпотентность применения, дубли версий и откат 
   журнала при ошибке SQL на PostgreSQL-адаптере.
-- `Presentation/Console/MigrateCommandTest.php` проверяет успешное применение миграций командой через DI-контейнер 
-  и `MigrateModule`.
+- `Presentation/Console/MigrateCommandTest.php` проверяет успешное применение миграций командой через `MigrationDi`.
 
 ## Ограничения
 

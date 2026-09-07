@@ -4,27 +4,48 @@ declare(strict_types=1);
 
 namespace Tests\Suite;
 
-use App\VacancyDiscoveryDaemonModule;
 use App\Platform\Postgres\Presentation\Config\PostgresEnv;
+use App\Platform\Postgres\Presentation\Config\PostgresDi;
 use App\VacancyDiscovery\Presentation\Config\HabrCareerEnv;
+use App\VacancyDiscovery\Presentation\Config\VacancyDiscoveryDaemonDi;
 use App\VacancyDiscovery\Presentation\Console\DiscoverVacanciesDaemon;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
 use Thesis\Dic;
+use Thesis\Dic\Module;
+use Thesis\Dic\Ref;
 
 final class DaemonModuleTest extends AppTestCase
 {
     #[Test]
-    #[TestDox('Собирает daemon поиска вакансий')]
-    public function itBuildsVacancyDiscoveryDaemon(): void
+    #[TestDox('Собирает контекст поиска вакансий')]
+    public function itBuildsVacancyDiscoveryContext(): void
     {
         $daemonBuilt = false;
 
         Dic::run(
-            new VacancyDiscoveryDaemonModule(
-                PostgresEnv::fromEnvironment(),
-                new HabrCareerEnv('test-cookie'),
-            ),
+            new readonly class implements Module {
+                /**
+                 * @return Ref<DiscoverVacanciesDaemon>
+                 */
+                public function configure(Dic $dic): Ref
+                {
+                    $database = $dic->import(new PostgresDi(
+                        static fn(): PostgresEnv => new PostgresEnv(
+                            'postgres',
+                            5432,
+                            'async_job_search_test',
+                            'async_job_search_test',
+                            'test-password',
+                        ),
+                    ));
+
+                    return $dic->import(new VacancyDiscoveryDaemonDi(
+                        $database,
+                        static fn(): HabrCareerEnv => new HabrCareerEnv('test-cookie'),
+                    ));
+                }
+            },
             static function (DiscoverVacanciesDaemon $daemon) use (&$daemonBuilt): void {
                 $daemonBuilt = true;
             },

@@ -19,7 +19,7 @@ Domain, Application и Infrastructure-слои отсутствуют: моду�
 
 ## Точки входа
 
-`LoggergDi` импортируется composition roots `HttpModule` и `VacancyDiscoveryDaemonModule`. 
+`LoggergDi` импортируется контекстами `HttpDi` и `VacancyDiscoveryDaemonDi`.
 Каждый импорт создаёт `LoggerInterface` для соответствующего процесса и передаёт его зависимым компонентам.
 
 ## Инфраструктура
@@ -34,7 +34,7 @@ Domain, Application и Infrastructure-слои отсутствуют: моду�
 ## Тестирование
 
 Отдельных тестов модуля нет. `backend/tests/Suite/HttpModuleTest.php` косвенно проверяет его DI-конфигурацию при
-сборке `HttpModule`.
+сборке `HttpDi`.
 
 ## Ограничения
 

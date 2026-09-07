@@ -9,19 +9,26 @@ use Amp\Http\Client\HttpClientBuilder;
 use App\VacancyDiscovery\Domain\VacancySource;
 use App\VacancyDiscovery\Infrastructure\HabrCareer\HabrCareerVacancyParser;
 use App\VacancyDiscovery\Infrastructure\HabrCareer\HabrCareerVacancySource;
+use Closure;
 use Thesis\Dic;
 use Thesis\Dic\Module;
 use Thesis\Dic\Ref;
 
+use function Typhoon\Type\closureT;
 use function Typhoon\Type\objectT;
+
+use const Typhoon\Type\stringT;
 
 /**
  * @implements Module<Ref<VacancySource>>
  */
 final readonly class HabrCareerDi implements Module
 {
+    /**
+     * @param Closure(): HabrCareerEnv $config
+     */
     public function __construct(
-        private HabrCareerEnv $config,
+        private Closure $config,
     ) {
     }
 
@@ -33,6 +40,12 @@ final readonly class HabrCareerDi implements Module
     public function configure(Dic $dic): Ref
     {
         $dic
+            ->object(HabrCareerEnv::class, $this->config)
+            ->bind(objectT(HabrCareerEnv::class));
+        $cookie = $dic
+            ->function(static fn(HabrCareerEnv $config): string => $config->cookie())
+            ->closure(closureT(return: stringT));
+        $dic
             ->object(HttpClient::class, $this->createHttpClient(...))
             ->bind(objectT(HttpClient::class));
         $dic
@@ -42,7 +55,7 @@ final readonly class HabrCareerDi implements Module
         return $dic
             ->object(HabrCareerVacancySource::class)
             ->args([
-                'cookie' => $this->config->cookie(),
+                'cookie' => $cookie,
             ])
             ->bind(objectT(VacancySource::class))
             ->tag(new VacancySourceTag());

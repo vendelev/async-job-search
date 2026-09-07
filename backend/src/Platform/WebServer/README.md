@@ -11,6 +11,7 @@ WebServer/
 │   └── RouteRegister.php
 └── Presentation/
     ├── Config/
+    │   ├── HttpDi.php
     │   ├── HttpRouteTag.php
     │   ├── HttpServerEnv.php
     │   ├── RouterFactory.php
@@ -19,7 +20,7 @@ WebServer/
         └── ServerHttp.php
 ```
 
-`HttpModule` создаёт `HttpServerEnv`, импортирует `LoggergDi`, получает все регистрации с тегом `HttpRouteTag` и
+`HttpDi` создаёт `HttpServerEnv`, импортирует `LoggergDi`, получает все регистрации с тегом `HttpRouteTag` и
 экспортирует `ServerHttp`.
 
 ## Предметная область
@@ -27,7 +28,7 @@ WebServer/
 `RouteRegister` - публичный контракт для модулей, добавляющих HTTP-маршруты. 
 Его метод `register()` получает `Amp\Http\Server\Router` и добавляет в него маршруты до запуска сервера.
 
-`HttpRouteTag` помечает реализации `RouteRegister`, чтобы `HttpModule` передал их в `RouterFactory`. 
+`HttpRouteTag` помечает реализации `RouteRegister`, чтобы `HttpDi` передал их в `RouterFactory`.
 Например, `VacancyCatalogHttpDi` экспортирует и помечает `VacancyCatalogRoutes`.
 
 ## Бизнес-логика
@@ -37,10 +38,9 @@ Application-слой отсутствует: модуль предоставля
 
 ## Точки входа
 
-`backend/bin/http.php` создаёт `HttpModule` с настройками PostgreSQL и HTTP-сервера, затем запускает экспортированный
-`ServerHttp` через `Dic::run()`.
+`backend/bin/app.php serve:http` запускает экспортированный `ServerHttp` через `AppModule` и `Dic::run()`.
 
-`ServerHttp::run()` выполняет следующие действия:
+`ServerHttp::__invoke()` выполняет следующие действия:
 
 1. Открывает сокет на адресе из `HttpServerEnv`.
 2. Запускает сервер с собранным маршрутизатором и обработчиком ошибок.
@@ -67,7 +67,7 @@ Application-слой отсутствует: модуль предоставля
 
 ## Тестирование
 
-Сборку HTTP composition root проверяет `backend/tests/Suite/HttpModuleTest.php`. 
+Сборку HTTP-контекста проверяет `backend/tests/Suite/HttpModuleTest.php`.
 Отдельных тестов компонентов `WebServer` пока нет.
 
 ## Ограничения

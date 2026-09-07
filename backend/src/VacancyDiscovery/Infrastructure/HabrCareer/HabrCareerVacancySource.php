@@ -12,6 +12,7 @@ use Amp\Http\Client\HttpClient;
 use Amp\Http\Client\Request;
 use App\VacancyDiscovery\Domain\Dto\ExternalVacancy;
 use App\VacancyDiscovery\Domain\VacancySource;
+use Closure;
 use Error;
 use RuntimeException;
 
@@ -21,11 +22,14 @@ final readonly class HabrCareerVacancySource implements VacancySource
 
     private const float TIMEOUT_SECONDS = 3.0;
 
+    /**
+     * @param Closure(): string $cookie
+     */
     public function __construct(
         private HttpClient $client,
         private HabrCareerVacancyParser $parser,
         #[SensitiveParameter]
-        private string $cookie,
+        private Closure $cookie,
     ) {
     }
 
@@ -59,7 +63,7 @@ final readonly class HabrCareerVacancySource implements VacancySource
                 'Priority' => 'u=0, i',
                 'Pragma' => 'no-cache',
                 'Cache-Control' => 'no-cache',
-                'Cookie' => $this->cookie,
+                'Cookie' => ($this->cookie)(),
             ] as $name => $value
         ) {
             $request->setHeader($name, $value);

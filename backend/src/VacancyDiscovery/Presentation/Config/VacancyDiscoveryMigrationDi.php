@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\VacancyDiscovery\Presentation\Config;
 
+use App\Core\Presentation\Config\MigrationProviderTag;
 use App\Platform\Migration\Domain\MigrationProvider;
 use App\VacancyDiscovery\Infrastructure\VacancyDiscoveryMigrationProvider;
 use Thesis\Dic;
@@ -22,6 +23,8 @@ final readonly class VacancyDiscoveryMigrationDi implements Module
      */
     public function configure(Dic $dic): Ref
     {
-        return $dic->object(VacancyDiscoveryMigrationProvider::class);
+        return $dic
+            ->object(VacancyDiscoveryMigrationProvider::class)
+            ->tag(new MigrationProviderTag());
     }
 }

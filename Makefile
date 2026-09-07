@@ -41,12 +41,12 @@ down:
 restart: down up
 
 migrate:
-	$(DOCKER_COMPOSE) exec -it app php bin/migrate.php
+	$(DOCKER_COMPOSE) exec -it app php bin/app.php migrate
 
 remigrate:
 	$(DOCKER_COMPOSE) down --volumes
-	$(DOCKER_COMPOSE) up -d app
-	$(DOCKER_COMPOSE) exec -it app php bin/migrate.php
+	$(DOCKER_COMPOSE) up -d
+	$(DOCKER_COMPOSE) exec -it app php bin/app.php migrate
 
 php-test: migrate
 	$(DOCKER_COMPOSE) exec -it app composer fix

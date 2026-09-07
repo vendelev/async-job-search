@@ -12,7 +12,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["php", "bin/vacancy-discovery-daemon.php"]
+    command: ["php", "bin/app.php", "daemon:vacancy-discovery"]
   app:
     image: vendelev/async-job-search:php-2026-09-05
     restart: always
@@ -26,7 +26,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["php", "bin/http.php"]
+    command: ["php", "bin/app.php", "serve:http"]
   postgres:
     image: ghcr.io/pgmq/pg18-pgmq:v1.10.0
     restart: unless-stopped
