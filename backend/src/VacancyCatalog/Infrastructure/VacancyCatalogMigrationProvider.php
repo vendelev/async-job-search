@@ -15,7 +15,7 @@ final readonly class VacancyCatalogMigrationProvider implements MigrationProvide
     public function migrations(): iterable
     {
         yield new Migration(
-            'vacancy_catalog_001_create_vacancies',
+            '20260829_vacancy_catalog_001_create_vacancies',
             <<<'SQL'
                 CREATE TABLE vacancy_catalog_vacancies (
                     source TEXT NOT NULL,

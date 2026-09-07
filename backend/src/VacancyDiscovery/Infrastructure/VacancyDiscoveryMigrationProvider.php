@@ -15,7 +15,7 @@ final readonly class VacancyDiscoveryMigrationProvider implements MigrationProvi
     public function migrations(): iterable
     {
         yield new Migration(
-            'vacancy_discovery_001_create_seen_vacancies',
+            '20260827_vacancy_discovery_001_create_seen_vacancies',
             <<<'SQL'
                 CREATE TABLE vacancy_discovery_seen_vacancies (
                     source TEXT NOT NULL,
