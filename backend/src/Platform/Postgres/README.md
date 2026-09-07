@@ -72,8 +72,9 @@ Application-слой отсутствует: модуль не реализуе�
 Читает `DATABASE_HOST`, `DATABASE_PORT`, `POSTGRES_DB`, `POSTGRES_USER` и `POSTGRES_PASSWORD`. 
 Все значения обязательны; port должен быть целым числом от 1 до 65535.
 
-`PostgresDi` создаёт `PostgresConnectionPool` и экспортирует ссылку на`AmpPostgresDatabase`, реализующий `PostgresDatabase`. 
-Корневой `MigrateModule`передаёт этот export в модули, которым требуется PostgreSQL.
+`PostgresDi` получает фабрику `PostgresEnv`, создаёт `PostgresConnectionPool` при первом разрешении и экспортирует
+ссылку на `AmpPostgresDatabase`, реализующий `PostgresDatabase`. `AppModule` передаёт этот export контекстам,
+которым требуется PostgreSQL.
 
 ## Infrastructure
 

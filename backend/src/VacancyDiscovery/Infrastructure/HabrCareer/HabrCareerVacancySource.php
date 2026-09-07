@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\VacancyDiscovery\Infrastructure\HabrCareer;
 
-use SensitiveParameter;
 use Amp\ByteStream\StreamException;
 use Amp\Cancellation;
 use Amp\Http\Client\HttpException;
@@ -14,6 +13,7 @@ use App\VacancyDiscovery\Domain\Dto\ExternalVacancy;
 use App\VacancyDiscovery\Domain\VacancySource;
 use Error;
 use RuntimeException;
+use SensitiveParameter;
 
 final readonly class HabrCareerVacancySource implements VacancySource
 {

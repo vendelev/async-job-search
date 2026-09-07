@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Platform\Migration\Domain;
+namespace App\Core\Domain;
 
 use InvalidArgumentException;
 

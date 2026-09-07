@@ -8,10 +8,12 @@ use Amp\CancelledException;
 use Amp\SignalCancellation;
 use App\VacancyDiscovery\Application\UseCase\DiscoverVacancies;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Throwable;
 
 use function Amp\delay;
 
+#[AsCommand(name: 'daemon:vacancy-discovery', description: 'Периодически ищет вакансии.')]
 final readonly class DiscoverVacanciesDaemon
 {
     private const int INTERVAL_SECONDS = 600;
@@ -25,7 +27,7 @@ final readonly class DiscoverVacanciesDaemon
     /**
      * Периодически запускает поиск вакансий до получения SIGINT или SIGTERM.
      */
-    public function run(): int
+    public function __invoke(): int
     {
         $cancellation = new SignalCancellation([SIGINT, SIGTERM]);
         $this->logger->info('Daemon поиска вакансий запущен.', [

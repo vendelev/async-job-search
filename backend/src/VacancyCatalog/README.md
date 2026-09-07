@@ -79,12 +79,12 @@ flowchart LR
 `VacancyDiscoveredSubscriber` реализует `EventSubscriber`, подписывается на `VacancyDiscovered` и передаёт
 вакансию в `VacancyCatalog::add()`.
 
-В `VacancyDiscoveryDaemonModule` subscriber передаётся в `EventBusDi`. 
+В `VacancyDiscoveryDaemonDi` subscriber передаётся в `EventBusDi`.
 Поэтому в runtime опубликованное `VacancyDiscovered` доставляется в каталог через `EventBus`.
 
 `VacancyCatalogHttpDi` создаёт use cases чтения, контроллеры, HTML-представление `VacancyCatalogView` и
-`VacancyCatalogRoutes`. Последний реализует `RouteRegister` и помечается `HttpRouteTag`. `HttpModule` собирает
-tagged registrars в общий `Router`; точка входа `bin/http.php` запускает сервер.
+`VacancyCatalogRoutes`. Последний реализует `RouteRegister` и помечается `HttpRouteTag`. `HttpDi` собирает
+tagged registrars в общий `Router`; команда `bin/app.php serve:http` запускает сервер.
 
 | Маршрут | Статус | Ответ |
 | --- | --- | --- |
@@ -113,8 +113,8 @@ tagged registrars в общий `Router`; точка входа `bin/http.php` �
 Повторная доставка события не создаёт вторую запись и не перезаписывает сохранённую проекцию: вставка использует
 `ON CONFLICT (source, external_vacancy_id) DO NOTHING`.
 
-`VacancyCatalogMigrationProvider` публикует миграцию `vacancy_catalog_001_create_vacancies`.
-`VacancyCatalogMigrationDi` передаёт её в общий `MigrateModule`.
+`VacancyCatalogMigrationProvider` публикует миграцию `20260829_vacancy_catalog_001_create_vacancies`.
+`VacancyCatalogMigrationDi` помечает её `MigrationProviderTag`, а `MigrationDi` собирает tagged providers.
 
 ## Зависимости и конфигурация
 
@@ -122,7 +122,7 @@ tagged registrars в общий `Router`; точка входа `bin/http.php` �
 реализует `RouteRegister` и собирается HTTP-платформой по `HttpRouteTag`.
 
 `VacancyCatalogEventSubscriberDi` принимает тот же `Ref<PostgresDatabase>` и экспортирует только
-`Ref<EventSubscriber>` для `VacancyDiscoveryDaemonModule`. В каждом entry point создаётся отдельный
+`Ref<EventSubscriber>` для `VacancyDiscoveryDaemonDi`. В каждом entry point создаётся отдельный
 `PostgresVacancyCatalog`, поэтому конфигурации не передают между собой use cases или контроллеры.
 
 Модуль использует:

@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Platform\Migration\Presentation\Config;
 
+use App\Core\Presentation\Config\ConsoleCommandTag;
+use App\Core\Presentation\Config\MigrationProviderTag;
 use App\Platform\Migration\Application\UseCase\ApplyMigrations;
-use App\Platform\Migration\Domain\MigrationProvider;
 use App\Platform\Migration\Domain\MigrationStorage;
 use App\Platform\Migration\Infrastructure\PostgresMigrationStorage;
 use App\Platform\Migration\Presentation\Console\MigrateCommand;
@@ -23,11 +24,9 @@ final readonly class MigrationDi implements Module
 {
     /**
      * @param Ref<PostgresDatabase> $database
-     * @param list<Ref<MigrationProvider>> $providers
      */
     public function __construct(
         private Ref $database,
-        private array $providers,
     ) {
     }
 
@@ -43,14 +42,18 @@ final readonly class MigrationDi implements Module
             ->arg('database', $this->database)
             ->bind(objectT(MigrationStorage::class));
 
-        $dic
+        $providers = $dic->taggedList(MigrationProviderTag::class);
+        $applyMigrations = $dic
             ->object(ApplyMigrations::class)
             ->args([
-                'providers' => $this->providers,
+                'providers' => $providers,
             ])
             ->bind(objectT(ApplyMigrations::class));
 
         return $dic
-            ->object(MigrateCommand::class);
+            ->object(MigrateCommand::class)
+            ->arg('applyMigrations', $applyMigrations)
+            ->lazy()
+            ->tag(new ConsoleCommandTag());
     }
 }

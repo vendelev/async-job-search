@@ -10,9 +10,11 @@ use Amp\Http\Server\SocketHttpServer;
 use App\Platform\WebServer\Presentation\Config\HttpServerEnv;
 use Amp\Socket\SocketException;
 use Revolt\EventLoop\UnsupportedFeatureException;
+use Symfony\Component\Console\Attribute\AsCommand;
 
 use function Amp\trapSignal;
 
+#[AsCommand(name: 'serve:http', description: 'Запускает HTTP-сервер.')]
 final readonly class ServerHttp
 {
     public function __construct(
@@ -29,7 +31,7 @@ final readonly class ServerHttp
      * @throws SocketException Если сервер не может открыть сокет
      * @throws UnsupportedFeatureException Если event loop не поддерживает сигналы
      */
-    public function run(): int
+    public function __invoke(): int
     {
         $this->server->expose(sprintf('%s:%d', $this->config->host, $this->config->port));
         $this->server->start($this->router, $this->errorHandler);

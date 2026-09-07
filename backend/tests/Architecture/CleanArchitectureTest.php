@@ -60,53 +60,82 @@ final readonly class CleanArchitectureTest
     }
 
     /**
-     * Проверим, что Presentation не зависит от внутренних слоёв другого модуля.
+     * Проверим, что Core не зависит от прикладных модулей.
      */
     #[TestRule]
-    public function testMigrationPresentationLayer(): BuildStep
+    public function testCoreIndependence(): BuildStep
     {
         return PHPat::rule()
-            ->classes(Selector::inNamespace('App\\Migration\\Presentation'))
+            ->classes(Selector::inNamespace('App\\Core'))
             ->shouldNot()->dependOn()
             ->classes(
-                Selector::inNamespace('App\\JobSearch\\Application'),
-                Selector::inNamespace('App\\JobSearch\\Infrastructure'),
-                Selector::inNamespace('App\\JobSearch\\Presentation'),
+                Selector::inNamespace('App\\Platform'),
+                Selector::inNamespace('App\\VacancyCatalog'),
+                Selector::inNamespace('App\\VacancyDiscovery'),
             )
-            ->because('Presentation обращается к другому модулю только через его Domain-контракт');
+            ->because('Core содержит общие контракты и не может зависеть от модулей, которые его используют');
     }
 
     /**
-     * Проверим, что Migration не зависит от внутренних слоёв JobSearch.
+     * Проверим, что внутренние слои Migration не используются другими модулями.
      */
     #[TestRule]
     public function testMigrationModuleBoundary(): BuildStep
     {
         return PHPat::rule()
-            ->classes(Selector::inNamespace('App\\Migration'))
+            ->classes(
+                Selector::AllOf(
+                    Selector::inNamespace('App'),
+                    Selector::Not(Selector::inNamespace('App\\Platform\\Migration')),
+                ),
+            )
             ->shouldNot()->dependOn()
             ->classes(
-                Selector::inNamespace('App\\JobSearch\\Application'),
-                Selector::inNamespace('App\\JobSearch\\Infrastructure'),
-                Selector::inNamespace('App\\JobSearch\\Presentation'),
+                Selector::inNamespace('App\\Platform\\Migration\\Application'),
+                Selector::inNamespace('App\\Platform\\Migration\\Infrastructure'),
             )
-            ->because('Migration обращается к JobSearch только через его Domain-контракт');
+            ->because('Другие модули обращаются к Migration только через Domain-контракты и DI-модуль');
     }
 
     /**
-     * Проверим, что JobSearch не зависит от внутренних слоёв Migration.
+     * Проверим, что внутренние слои VacancyCatalog не используются другими модулями.
      */
     #[TestRule]
-    public function testJobSearchModuleBoundary(): BuildStep
+    public function testVacancyCatalogModuleBoundary(): BuildStep
     {
         return PHPat::rule()
-            ->classes(Selector::inNamespace('App\\JobSearch'))
+            ->classes(
+                Selector::AllOf(
+                    Selector::inNamespace('App'),
+                    Selector::Not(Selector::inNamespace('App\\VacancyCatalog')),
+                ),
+            )
             ->shouldNot()->dependOn()
             ->classes(
-                Selector::inNamespace('App\\Migration\\Application'),
-                Selector::inNamespace('App\\Migration\\Infrastructure'),
-                Selector::inNamespace('App\\Migration\\Presentation'),
+                Selector::inNamespace('App\\VacancyCatalog\\Application'),
+                Selector::inNamespace('App\\VacancyCatalog\\Infrastructure'),
             )
-            ->because('JobSearch обращается к Migration только через его Domain-контракт');
+            ->because('Другие модули обращаются к VacancyCatalog только через Domain-контракты и DI-модуль');
+    }
+
+    /**
+     * Проверим, что внутренние слои VacancyDiscovery не используются другими модулями.
+     */
+    #[TestRule]
+    public function testVacancyDiscoveryModuleBoundary(): BuildStep
+    {
+        return PHPat::rule()
+            ->classes(
+                Selector::AllOf(
+                    Selector::inNamespace('App'),
+                    Selector::Not(Selector::inNamespace('App\\VacancyDiscovery')),
+                ),
+            )
+            ->shouldNot()->dependOn()
+            ->classes(
+                Selector::inNamespace('App\\VacancyDiscovery\\Application'),
+                Selector::inNamespace('App\\VacancyDiscovery\\Infrastructure'),
+            )
+            ->because('Другие модули обращаются к VacancyDiscovery только через Domain-контракты и DI-модуль');
     }
 }

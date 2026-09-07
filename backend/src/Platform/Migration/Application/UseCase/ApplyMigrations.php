@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Migration\Application\UseCase;
 
-use App\Platform\Migration\Domain\Migration;
-use App\Platform\Migration\Domain\MigrationProvider;
+use App\Core\Domain\Migration;
+use App\Core\Domain\MigrationProvider;
 use App\Platform\Migration\Domain\MigrationStorage;
 use RuntimeException;
 use Throwable;

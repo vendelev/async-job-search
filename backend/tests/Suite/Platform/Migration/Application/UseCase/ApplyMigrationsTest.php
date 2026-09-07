@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Platform\Migration\Application\UseCase;
+namespace Tests\Suite\Platform\Migration\Application\UseCase;
 
 use Amp\Postgres\PostgresQueryError;
+use App\Core\Domain\Migration;
+use App\Core\Domain\MigrationProvider;
 use App\Platform\Migration\Application\UseCase\ApplyMigrations;
-use App\Platform\Migration\Domain\Migration;
-use App\Platform\Migration\Domain\MigrationProvider;
 use App\Platform\Migration\Infrastructure\PostgresMigrationStorage;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;

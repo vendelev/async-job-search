@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\VacancyCatalog\Infrastructure;
 
-use App\Platform\Migration\Domain\Migration;
-use App\Platform\Migration\Domain\MigrationProvider;
+use App\Core\Domain\Migration;
+use App\Core\Domain\MigrationProvider;
 
 final readonly class VacancyCatalogMigrationProvider implements MigrationProvider
 {
@@ -15,7 +15,7 @@ final readonly class VacancyCatalogMigrationProvider implements MigrationProvide
     public function migrations(): iterable
     {
         yield new Migration(
-            'vacancy_catalog_001_create_vacancies',
+            '20260829_vacancy_catalog_001_create_vacancies',
             <<<'SQL'
                 CREATE TABLE vacancy_catalog_vacancies (
                     source TEXT NOT NULL,

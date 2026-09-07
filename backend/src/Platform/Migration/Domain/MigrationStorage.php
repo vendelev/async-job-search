@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\Migration\Domain;
 
+use App\Core\Domain\Migration;
+
 interface MigrationStorage
 {
     /**

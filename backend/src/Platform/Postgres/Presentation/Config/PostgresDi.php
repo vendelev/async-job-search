@@ -8,6 +8,7 @@ use Amp\Postgres\PostgresConfig as AmpPostgresConfig;
 use Amp\Postgres\PostgresConnectionPool;
 use App\Platform\Postgres\Domain\PostgresDatabase;
 use App\Platform\Postgres\Infrastructure\AmpPostgresDatabase;
+use Closure;
 use Thesis\Dic;
 use Thesis\Dic\Module;
 use Thesis\Dic\Ref;
@@ -19,8 +20,11 @@ use function Typhoon\Type\objectT;
  */
 final readonly class PostgresDi implements Module
 {
+    /**
+     * @param Closure(): PostgresEnv $config
+     */
     public function __construct(
-        private PostgresEnv $config,
+        private Closure $config,
     ) {
     }
 
@@ -42,16 +46,18 @@ final readonly class PostgresDi implements Module
 
     /**
      * Создаёт общий пул неблокирующих подключений к PostgreSQL.
-     * Используется в Thesis\Dic как callable service
+     * Используется в Thesis\Dic как callable service.
      */
     private function createPool(): PostgresConnectionPool
     {
+        $config = ($this->config)();
+
         return new PostgresConnectionPool(new AmpPostgresConfig(
-            $this->config->host,
-            $this->config->port,
-            $this->config->user,
-            $this->config->password,
-            $this->config->database,
+            $config->host,
+            $config->port,
+            $config->user,
+            $config->password,
+            $config->database,
         ));
     }
 }

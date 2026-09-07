@@ -28,7 +28,7 @@ final readonly class EventBusTestModule implements Module
      */
     public function configure(Dic $dic): Ref
     {
-        $database = $dic->import(new PostgresDi($this->config));
+        $database = $dic->import(new PostgresDi(fn(): PostgresEnv => $this->config));
         $eventStore = $dic->import(new EventStoreDi($database));
 
         return $dic->import(new EventBusDi($eventStore));

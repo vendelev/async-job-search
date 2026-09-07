@@ -28,6 +28,7 @@
         "ramsey/uuid": "^4.9.3",
         "revolt/event-loop": "^1.0.9",
         "sentry/sentry": "^4.31",
+        "symfony/console": "^8.1.6",
         "thesis/clock": "^0.1.0",
         "thesis/dic": "^0.5.3",
         "thesis/message": "^0.4.0",

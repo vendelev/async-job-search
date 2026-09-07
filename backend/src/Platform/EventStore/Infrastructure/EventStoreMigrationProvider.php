@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\EventStore\Infrastructure;
 
-use App\Platform\Migration\Domain\Migration;
-use App\Platform\Migration\Domain\MigrationProvider;
+use App\Core\Domain\Migration;
+use App\Core\Domain\MigrationProvider;
 
 final readonly class EventStoreMigrationProvider implements MigrationProvider
 {
@@ -15,7 +15,7 @@ final readonly class EventStoreMigrationProvider implements MigrationProvider
     public function migrations(): iterable
     {
         yield new Migration(
-            'event_store_001_create_events',
+            '20260827_event_store_001_create_events',
             <<<'SQL'
                 CREATE TABLE event_store_events (
                     id UUID PRIMARY KEY,
@@ -29,7 +29,7 @@ final readonly class EventStoreMigrationProvider implements MigrationProvider
         );
 
         yield new Migration(
-            'event_store_002_create_events_stream_position_index',
+            '20260827_event_store_002_create_events_stream_position_index',
             <<<'SQL'
                 CREATE INDEX event_store_events_stream_position_index
                     ON event_store_events (stream_name, position)

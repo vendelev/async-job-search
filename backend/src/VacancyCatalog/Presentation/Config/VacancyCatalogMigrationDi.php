@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\VacancyCatalog\Presentation\Config;
 
-use App\Platform\Migration\Domain\MigrationProvider;
+use App\Core\Domain\MigrationProvider;
+use App\Core\Presentation\Config\MigrationProviderTag;
 use App\VacancyCatalog\Infrastructure\VacancyCatalogMigrationProvider;
 use Thesis\Dic;
 use Thesis\Dic\Module;
@@ -22,6 +23,8 @@ final readonly class VacancyCatalogMigrationDi implements Module
      */
     public function configure(Dic $dic): Ref
     {
-        return $dic->object(VacancyCatalogMigrationProvider::class);
+        return $dic
+            ->object(VacancyCatalogMigrationProvider::class)
+            ->tag(new MigrationProviderTag());
     }
 }

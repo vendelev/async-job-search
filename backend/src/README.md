@@ -1,46 +1,40 @@
-# Корневые модули композиции
+# Консоль приложения
 
-Каждая точка входа собирает только зависимости своего процесса через отдельный корневой модуль композиции. Корневые модули
-не создают подключения или адаптеры напрямую: импортируют технические и прикладные модули и передают между ними
+`AppModule` — единственный корневой модуль композиции. Он импортирует контекстные `*Di` и передаёт между ними
 только `Ref<T>` exports.
 
-| Точка входа | Корневой модуль | Назначение |
-| --- | --- | --- |
-| `backend/bin/migrate.php` | `MigrateModule` | Применяет миграции PostgreSQL. |
-| `backend/bin/vacancy-discovery-daemon.php` | `VacancyDiscoveryDaemonModule` | Периодически получает вакансии и публикует события. |
-| `backend/bin/http.php` | `HttpModule` | Запускает HTTP-сервер каталога вакансий. |
+| Точка входа | Команда | Контекст | Назначение |
+| --- | --- | --- | --- |
+| `../bin/app.php` | `migrate` | `MigrationDi` | Применяет миграции PostgreSQL. |
+| `../bin/app.php` | `daemon:vacancy-discovery` | `VacancyDiscoveryDaemonDi` | Периодически получает вакансии и публикует события. |
+| `../bin/app.php` | `serve:http` | `HttpDi` | Запускает HTTP-сервер каталога вакансий. |
 
 ## Композиция миграций
 
 ```mermaid
 flowchart LR
-    Config[PostgresEnv] --> MigrateModule
-    MigrateModule --> PostgresDi
+    AppModule --> PostgresDi
     PostgresDi -->|Ref<PostgresDatabase>| MigrationDi
-    MigrateModule --> EventStoreMigrationDi
-    EventStoreMigrationDi -->|Ref<MigrationProvider>| MigrationDi
-    MigrateModule --> VacancyCatalogMigrationDi
-    MigrateModule --> VacancyDiscoveryMigrationDi
-    MigrationDi -->|Ref<MigrateCommand>| MigrateModule
+    EventStoreMigrationDi -->|MigrationProviderTag| MigrationDi
+    VacancyCatalogMigrationDi -->|MigrationProviderTag| MigrationDi
+    VacancyDiscoveryMigrationDi -->|MigrationProviderTag| MigrationDi
+    MigrationDi -->|ConsoleCommandTag| AppModule
 ```
 
-Порядок сборки в `MigrateModule::configure()`:
+`AppModule` передаёт фабрики окружения в контексты. Значения читаются при запуске соответствующей команды, поэтому
+`bin/app.php list` не требует конфигурации PostgreSQL, HTTP-сервера или Habr Career.
+Причины и альтернативы зафиксированы в [ADR 0001](../../docs/adr/0001-edinyy-konsolnyy-vkhod.md).
 
-1. `PostgresDi` создаёт общий async pool PostgreSQL и экспортирует `Ref<PostgresDatabase>`.
-2. `EventStoreMigrationDi` экспортирует `Ref<MigrationProvider>` с миграцией таблицы журнала событий.
-3. `VacancyCatalogMigrationDi` и `VacancyDiscoveryMigrationDi` экспортируют миграции прикладных модулей.
-4. `MigrationDi` получает PostgreSQL и все `Ref<MigrationProvider>`, затем возвращает `Ref<MigrateCommand>`.
-
-`backend/bin/migrate.php` создаёт `PostgresEnv` из окружения, передаёт его
-в `MigrateModule` и запускает экспортированный `MigrateCommand`.
+Контексты помечают команды `Core\Presentation\Config\ConsoleCommandTag`. `AppModule` собирает их через
+`Dic::taggedList()`, поэтому новый контекст добавляет команду без изменения корневого модуля.
 
 ## Runtime-процессы
 
-`VacancyDiscoveryDaemonModule` собирает общий пул PostgreSQL, логирование, `EventStoreDi`, `EventBusDi`,
+`VacancyDiscoveryDaemonDi` получает общий logger, собирает `EventStoreDi`, `EventBusDi`,
 `VacancyCatalogEventSubscriberDi`, Habr Career и `VacancyDiscoveryDi`. Он возвращает
 `Ref<DiscoverVacanciesDaemon>` для запуска периодического поиска вакансий.
 
-`HttpModule` собирает общий пул PostgreSQL, логирование, HTTP-сервер и маршрутизаторы, зарегистрированные через
+`HttpDi` получает общий logger, собирает HTTP-сервер и маршрутизаторы, зарегистрированные через
 `HttpRouteTag`. Сейчас HTTP-входы добавляет `VacancyCatalogHttpDi`. Модуль возвращает `Ref<ServerHttp>`.
 
 EventBus добавляет событие в EventStore до запуска обработчиков. In-memory доставка не переживает рестарт процесса.
@@ -48,5 +42,5 @@ EventBus добавляет событие в EventStore до запуска о�
 ## Правило изменения композиции
 
 При добавлении модуля не передавайте его Infrastructure-объекты напрямую. Модуль должен экспортировать `Ref` на
-Domain-контракт, а корневой модуль соответствующей точки входа передаёт эту ссылку следующему потребителю.
+Domain-контракт, а `AppModule` передаёт эту ссылку следующему потребителю.
 Одновременно обновляйте этот документ и README соответствующего модуля.
