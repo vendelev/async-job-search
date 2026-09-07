@@ -6,7 +6,7 @@ namespace App\Platform\Migration\Infrastructure;
 
 use Amp\Sql\SqlException;
 use Amp\Sql\SqlTransactionError;
-use App\Platform\Migration\Domain\Migration;
+use App\Core\Domain\Migration;
 use App\Platform\Migration\Domain\MigrationStorage;
 use App\Platform\Postgres\Domain\PostgresDatabase;
 use Throwable;

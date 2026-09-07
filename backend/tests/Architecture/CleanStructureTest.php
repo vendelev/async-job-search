@@ -89,10 +89,7 @@ final readonly class CleanStructureTest
             ->classes(
                 Selector::AllOf(
                     Selector::isInterface(),
-                    Selector::inNamespace(
-                        '/^App\\\\(?:Migration|Platform\\\\(?:EventBus|EventStore|Postgres))\\\\/',
-                        true,
-                    ),
+                    Selector::inNamespace('App'),
                 ),
             )
             ->should()->beNamed('/.+Domain.+/', true)

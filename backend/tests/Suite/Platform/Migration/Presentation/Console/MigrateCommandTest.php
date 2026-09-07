@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Platform\Migration\Presentation\Console;
+namespace Tests\Suite\Platform\Migration\Presentation\Console;
 
 use App\Platform\EventStore\Presentation\Config\EventStoreMigrationDi;
 use App\Platform\Migration\Presentation\Config\MigrationDi;

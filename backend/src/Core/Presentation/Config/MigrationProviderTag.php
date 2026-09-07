@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core\Presentation\Config;
 
-use App\Platform\Migration\Domain\MigrationProvider;
+use App\Core\Domain\MigrationProvider;
 use Thesis\Dic\Tag;
 
 /**

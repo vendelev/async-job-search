@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\VacancyDiscovery\Presentation\Config;
 
+use App\Core\Domain\MigrationProvider;
 use App\Core\Presentation\Config\MigrationProviderTag;
-use App\Platform\Migration\Domain\MigrationProvider;
 use App\VacancyDiscovery\Infrastructure\VacancyDiscoveryMigrationProvider;
 use Thesis\Dic;
 use Thesis\Dic\Module;

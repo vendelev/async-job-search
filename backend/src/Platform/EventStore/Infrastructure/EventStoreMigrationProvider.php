@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Platform\EventStore\Infrastructure;
 
-use App\Platform\Migration\Domain\Migration;
-use App\Platform\Migration\Domain\MigrationProvider;
+use App\Core\Domain\Migration;
+use App\Core\Domain\MigrationProvider;
 
 final readonly class EventStoreMigrationProvider implements MigrationProvider
 {

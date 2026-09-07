@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Platform\Migration\Domain;
+namespace Tests\Suite\Core\Domain;
 
-use App\Platform\Migration\Domain\Migration;
+use App\Core\Domain\Migration;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
