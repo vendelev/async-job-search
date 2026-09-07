@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\VacancyDiscovery\Infrastructure\HabrCareer;
 
-use SensitiveParameter;
 use Amp\ByteStream\StreamException;
 use Amp\Cancellation;
 use Amp\Http\Client\HttpException;
@@ -28,7 +27,6 @@ final readonly class HabrCareerVacancySource implements VacancySource
     public function __construct(
         private HttpClient $client,
         private HabrCareerVacancyParser $parser,
-        #[SensitiveParameter]
         private Closure $cookie,
     ) {
     }

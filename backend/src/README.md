@@ -4,7 +4,7 @@
 только `Ref<T>` exports.
 
 | Точка входа | Команда | Контекст | Назначение |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | `../bin/app.php` | `migrate` | `MigrationDi` | Применяет миграции PostgreSQL. |
 | `../bin/app.php` | `daemon:vacancy-discovery` | `VacancyDiscoveryDaemonDi` | Периодически получает вакансии и публикует события. |
 | `../bin/app.php` | `serve:http` | `HttpDi` | Запускает HTTP-сервер каталога вакансий. |
@@ -30,11 +30,11 @@ flowchart LR
 
 ## Runtime-процессы
 
-`VacancyDiscoveryDaemonDi` собирает общий пул PostgreSQL, логирование, `EventStoreDi`, `EventBusDi`,
+`VacancyDiscoveryDaemonDi` получает общий logger, собирает `EventStoreDi`, `EventBusDi`,
 `VacancyCatalogEventSubscriberDi`, Habr Career и `VacancyDiscoveryDi`. Он возвращает
 `Ref<DiscoverVacanciesDaemon>` для запуска периодического поиска вакансий.
 
-`HttpDi` собирает общий пул PostgreSQL, логирование, HTTP-сервер и маршрутизаторы, зарегистрированные через
+`HttpDi` получает общий logger, собирает HTTP-сервер и маршрутизаторы, зарегистрированные через
 `HttpRouteTag`. Сейчас HTTP-входы добавляет `VacancyCatalogHttpDi`. Модуль возвращает `Ref<ServerHttp>`.
 
 EventBus добавляет событие в EventStore до запуска обработчиков. In-memory доставка не переживает рестарт процесса.

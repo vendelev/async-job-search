@@ -20,7 +20,7 @@ WebServer/
         └── ServerHttp.php
 ```
 
-`HttpDi` создаёт `HttpServerEnv`, импортирует `LoggergDi`, получает все регистрации с тегом `HttpRouteTag` и
+`HttpDi` получает `Ref<LoggerInterface>`, создаёт `HttpServerEnv`, получает все регистрации с тегом `HttpRouteTag` и
 экспортирует `ServerHttp`.
 
 ## Предметная область
@@ -67,7 +67,7 @@ Application-слой отсутствует: модуль предоставля
 
 ## Тестирование
 
-Сборку HTTP-контекста проверяет `backend/tests/Suite/HttpModuleTest.php`.
+Сборку HTTP-контекста проверяет `backend/tests/Suite/HttpDiTest.php`.
 Отдельных тестов компонентов `WebServer` пока нет.
 
 ## Ограничения

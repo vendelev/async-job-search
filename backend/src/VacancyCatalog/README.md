@@ -113,7 +113,7 @@ tagged registrars в общий `Router`; команда `bin/app.php serve:http
 Повторная доставка события не создаёт вторую запись и не перезаписывает сохранённую проекцию: вставка использует
 `ON CONFLICT (source, external_vacancy_id) DO NOTHING`.
 
-`VacancyCatalogMigrationProvider` публикует миграцию `vacancy_catalog_001_create_vacancies`.
+`VacancyCatalogMigrationProvider` публикует миграцию `20260829_vacancy_catalog_001_create_vacancies`.
 `VacancyCatalogMigrationDi` помечает её `MigrationProviderTag`, а `MigrationDi` собирает tagged providers.
 
 ## Зависимости и конфигурация

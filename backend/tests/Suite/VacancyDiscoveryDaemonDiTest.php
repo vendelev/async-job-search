@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Suite;
 
-use App\Platform\Postgres\Presentation\Config\PostgresEnv;
+use Throwable;
+use App\Platform\Logging\Presentation\Config\LoggergDi;
 use App\Platform\Postgres\Presentation\Config\PostgresDi;
+use App\Platform\Postgres\Presentation\Config\PostgresEnv;
 use App\VacancyDiscovery\Presentation\Config\HabrCareerEnv;
 use App\VacancyDiscovery\Presentation\Config\VacancyDiscoveryDaemonDi;
 use App\VacancyDiscovery\Presentation\Console\DiscoverVacanciesDaemon;
@@ -15,8 +17,11 @@ use Thesis\Dic;
 use Thesis\Dic\Module;
 use Thesis\Dic\Ref;
 
-final class DaemonModuleTest extends AppTestCase
+final class VacancyDiscoveryDaemonDiTest extends AppTestCase
 {
+    /**
+     * @throws Throwable
+     */
     #[Test]
     #[TestDox('Собирает контекст поиска вакансий')]
     public function itBuildsVacancyDiscoveryContext(): void
@@ -39,9 +44,11 @@ final class DaemonModuleTest extends AppTestCase
                             'test-password',
                         ),
                     ));
+                    $logger = $dic->import(new LoggergDi());
 
                     return $dic->import(new VacancyDiscoveryDaemonDi(
                         $database,
+                        $logger,
                         static fn(): HabrCareerEnv => new HabrCareerEnv('test-cookie'),
                     ));
                 }

@@ -6,6 +6,7 @@ namespace App;
 
 use App\Core\Presentation\Config\ConsoleCommandTag;
 use App\Platform\EventStore\Presentation\Config\EventStoreMigrationDi;
+use App\Platform\Logging\Presentation\Config\LoggergDi;
 use App\Platform\Migration\Presentation\Config\MigrationDi;
 use App\Platform\Postgres\Presentation\Config\PostgresDi;
 use App\Platform\Postgres\Presentation\Config\PostgresEnv;
@@ -51,14 +52,16 @@ final readonly class AppModule implements Module
         $dic->import(new VacancyCatalogMigrationDi());
         $dic->import(new VacancyDiscoveryMigrationDi());
 
-        $dic->import(new HttpDi($database, $this->httpConfig));
-        $dic->import(new VacancyDiscoveryDaemonDi($database, $this->habrCareerConfig));
+        $logger = $dic->import(new LoggergDi());
+        $dic->import(new HttpDi($database, $logger, $this->httpConfig));
+        $dic->import(new VacancyDiscoveryDaemonDi($database, $logger, $this->habrCareerConfig));
 
         $commands = $dic->taggedList(ConsoleCommandTag::class);
 
         return $dic
             ->object(Application::class)
             ->call('setName', ['name' => 'async-job-search'])
+            ->call('setAutoExit', ['boolean' => false])
             ->call('addCommands', ['commands' => $commands]);
     }
 }

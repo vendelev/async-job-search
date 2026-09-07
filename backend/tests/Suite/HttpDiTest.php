@@ -4,19 +4,24 @@ declare(strict_types=1);
 
 namespace Tests\Suite;
 
+use Throwable;
+use App\Platform\Logging\Presentation\Config\LoggergDi;
 use App\Platform\Postgres\Presentation\Config\PostgresDi;
+use App\Platform\Postgres\Presentation\Config\PostgresEnv;
 use App\Platform\WebServer\Presentation\Config\HttpServerEnv;
 use App\Platform\WebServer\Presentation\Config\HttpDi;
 use App\Platform\WebServer\Presentation\Console\ServerHttp;
-use App\Platform\Postgres\Presentation\Config\PostgresEnv;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
 use Thesis\Dic;
 use Thesis\Dic\Module;
 use Thesis\Dic\Ref;
 
-final class HttpModuleTest extends AppTestCase
+final class HttpDiTest extends AppTestCase
 {
+    /**
+     * @throws Throwable
+     */
     #[Test]
     #[TestDox('Собирает HTTP-контекст')]
     public function itBuildsHttpContext(): void
@@ -39,9 +44,11 @@ final class HttpModuleTest extends AppTestCase
                             'test-password',
                         ),
                     ));
+                    $logger = $dic->import(new LoggergDi());
 
                     return $dic->import(new HttpDi(
                         $database,
+                        $logger,
                         static fn(): HttpServerEnv => new HttpServerEnv('127.0.0.1', 8080),
                     ));
                 }

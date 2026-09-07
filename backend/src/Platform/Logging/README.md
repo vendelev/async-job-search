@@ -19,13 +19,13 @@ Domain, Application и Infrastructure-слои отсутствуют: моду�
 
 ## Точки входа
 
-`LoggergDi` импортируется контекстами `HttpDi` и `VacancyDiscoveryDaemonDi`.
-Каждый импорт создаёт `LoggerInterface` для соответствующего процесса и передаёт его зависимым компонентам.
+`AppModule` импортирует `LoggergDi` один раз и передаёт экспортируемый `Ref<LoggerInterface>` в `HttpDi` и
+`VacancyDiscoveryDaemonDi`.
 
 ## Инфраструктура
 
-`LoggergDi` создаёт `Monolog\Logger` с именем `async-job-search` и `Monolog\Handler\ErrorLogHandler`.
-Все записи направляются в error log процесса.
+`LoggergDi` создаёт `Monolog\Logger` с именем `async-job-search` и `Amp\Log\StreamHandler`.
+Все записи направляются в stderr через неблокирующий поток Amp.
 
 ## Зависимости и конфигурация
 
@@ -33,8 +33,8 @@ Domain, Application и Infrastructure-слои отсутствуют: моду�
 
 ## Тестирование
 
-Отдельных тестов модуля нет. `backend/tests/Suite/HttpModuleTest.php` косвенно проверяет его DI-конфигурацию при
-сборке `HttpDi`.
+Отдельных тестов модуля нет. `backend/tests/Suite/AppModuleTest.php` косвенно проверяет его DI-конфигурацию при
+сборке `AppModule`.
 
 ## Ограничения
 

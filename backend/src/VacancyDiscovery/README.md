@@ -95,8 +95,8 @@ HTTP-входы и маршруты в модуле отсутствуют.
 `vacancy_discovery_seen_vacancies`. Первичная пара ключей `(source, external_vacancy_id)` и
 `ON CONFLICT DO NOTHING` обеспечивают дедупликацию между запусками и источниками.
 
-`VacancyDiscoveryMigrationProvider` экспортирует миграцию `vacancy_discovery_001_create_seen_vacancies`. 
-Она импортируется `AppModule` и помечается `MigrationProviderTag`.
+`VacancyDiscoveryMigrationProvider` экспортирует миграцию `20260827_vacancy_discovery_001_create_seen_vacancies`.
+`VacancyDiscoveryMigrationDi` помечает provider тегом `MigrationProviderTag`.
 
 `HabrCareerVacancySource` реализует `VacancySource` через `amphp/http-client`:
 

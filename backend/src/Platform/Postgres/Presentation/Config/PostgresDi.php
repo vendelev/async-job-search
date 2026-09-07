@@ -35,9 +35,8 @@ final readonly class PostgresDi implements Module
      */
     public function configure(Dic $dic): Ref
     {
-        $dic->object(PostgresEnv::class, $this->config);
         $dic
-            ->object(PostgresConnectionPool::class, fn(): PostgresConnectionPool => $this->createPool())
+            ->object(PostgresConnectionPool::class, $this->createPool(...))
             ->bind(objectT(PostgresConnectionPool::class));
 
         return $dic
@@ -48,7 +47,6 @@ final readonly class PostgresDi implements Module
     /**
      * Создаёт общий пул неблокирующих подключений к PostgreSQL.
      * Используется в Thesis\Dic как callable service.
-     *
      */
     private function createPool(): PostgresConnectionPool
     {

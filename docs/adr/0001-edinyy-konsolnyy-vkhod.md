@@ -5,8 +5,8 @@ date: 2026-09-07
 
 # Единый консольный вход
 
-Приложение запускается через единый `backend/bin/app.php` и `AppModule`. 
-Команды остаются существующими invokable-классами `Presentation\Console`, помеченными `#[AsCommand]`; 
+Приложение запускается через единый `backend/bin/app.php` и `AppModule`.
+Команды остаются существующими invokable-классами `Presentation\Console`, помеченными `#[AsCommand]`;
 `AppModule` собирает их по `Core\Presentation\Config\ConsoleCommandTag` и передаёт в Symfony Console.
 
 Конфигурации `PostgresEnv`, `HttpServerEnv` и `HabrCareerEnv` передаются в контекстные `*Di` как
