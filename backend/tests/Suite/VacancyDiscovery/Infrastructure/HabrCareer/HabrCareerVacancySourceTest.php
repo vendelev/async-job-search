@@ -124,7 +124,7 @@ final class HabrCareerVacancySourceTest extends TestCase
                 }
             }, []),
             new HabrCareerVacancyParser(),
-            static fn(): string => 'test-cookie',
+            'test-cookie',
         );
     }
 }

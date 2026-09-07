@@ -52,7 +52,8 @@ final readonly class MigrationDi implements Module
 
         return $dic
             ->object(MigrateCommand::class)
-            ->arg('applyMigrations', $dic->provider($applyMigrations))
+            ->arg('applyMigrations', $applyMigrations)
+            ->lazy()
             ->tag(new ConsoleCommandTag());
     }
 }

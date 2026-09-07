@@ -14,10 +14,7 @@ use Thesis\Dic;
 use Thesis\Dic\Module;
 use Thesis\Dic\Ref;
 
-use function Typhoon\Type\closureT;
 use function Typhoon\Type\objectT;
-
-use const Typhoon\Type\stringT;
 
 /**
  * @implements Module<Ref<VacancySource>>
@@ -42,9 +39,6 @@ final readonly class HabrCareerDi implements Module
         $dic
             ->object(HabrCareerEnv::class, $this->config)
             ->bind(objectT(HabrCareerEnv::class));
-        $cookie = $dic
-            ->function(static fn(HabrCareerEnv $config): string => $config->cookie())
-            ->closure(closureT(return: stringT));
         $dic
             ->object(HttpClient::class, $this->createHttpClient(...))
             ->bind(objectT(HttpClient::class));
@@ -52,11 +46,10 @@ final readonly class HabrCareerDi implements Module
             ->object(HabrCareerVacancyParser::class)
             ->bind(objectT(HabrCareerVacancyParser::class));
 
+        $sourceFactory = $dic->object(HabrCareerVacancySourceFactory::class);
+
         return $dic
-            ->object(HabrCareerVacancySource::class)
-            ->args([
-                'cookie' => $cookie,
-            ])
+            ->object(HabrCareerVacancySource::class, [$sourceFactory, 'create'])
             ->bind(objectT(VacancySource::class))
             ->tag(new VacancySourceTag());
     }

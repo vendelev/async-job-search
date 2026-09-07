@@ -49,9 +49,10 @@ final readonly class VacancyDiscoveryDaemonDi implements Module
         return $dic
             ->object(DiscoverVacanciesDaemon::class)
             ->args([
-                'discoverVacancies' => $dic->provider($discoverVacancies),
+                'discoverVacancies' => $discoverVacancies,
                 'logger' => $this->logger,
             ])
+            ->lazy()
             ->tag(new ConsoleCommandTag());
     }
 }

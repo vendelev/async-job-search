@@ -13,6 +13,7 @@ use App\VacancyDiscovery\Presentation\Config\VacancyDiscoveryDaemonDi;
 use App\VacancyDiscovery\Presentation\Console\DiscoverVacanciesDaemon;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
+use ReflectionObject;
 use Thesis\Dic;
 use Thesis\Dic\Module;
 use Thesis\Dic\Ref;
@@ -54,6 +55,9 @@ final class VacancyDiscoveryDaemonDiTest extends AppTestCase
                 }
             },
             static function (DiscoverVacanciesDaemon $daemon) use (&$daemonBuilt): void {
+                // DiscoverVacanciesDaemon регистрируется как lazy-объект, поэтому граф зависимостей
+                // собирается только при инициализации прокси.
+                new ReflectionObject($daemon)->initializeLazyObject($daemon);
                 $daemonBuilt = true;
             },
         );

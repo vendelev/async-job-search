@@ -13,6 +13,7 @@ use App\Platform\WebServer\Presentation\Config\HttpDi;
 use App\Platform\WebServer\Presentation\Console\ServerHttp;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
+use ReflectionObject;
 use Thesis\Dic;
 use Thesis\Dic\Module;
 use Thesis\Dic\Ref;
@@ -54,6 +55,9 @@ final class HttpDiTest extends AppTestCase
                 }
             },
             static function (ServerHttp $server) use (&$serverBuilt): void {
+                // ServerHttp регистрируется как lazy-объект, поэтому граф зависимостей
+                // собирается только при инициализации прокси.
+                new ReflectionObject($server)->initializeLazyObject($server);
                 $serverBuilt = true;
             },
         );

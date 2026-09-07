@@ -9,7 +9,6 @@ use Amp\Http\Server\Router;
 use Amp\Http\Server\SocketHttpServer;
 use App\Platform\WebServer\Presentation\Config\HttpServerEnv;
 use Amp\Socket\SocketException;
-use Closure;
 use Revolt\EventLoop\UnsupportedFeatureException;
 use Symfony\Component\Console\Attribute\AsCommand;
 
@@ -18,17 +17,11 @@ use function Amp\trapSignal;
 #[AsCommand(name: 'serve:http', description: 'Запускает HTTP-сервер.')]
 final readonly class ServerHttp
 {
-    /**
-     * @param Closure(): SocketHttpServer $server
-     * @param Closure(): Router $router
-     * @param Closure(): ErrorHandler $errorHandler
-     * @param Closure(): HttpServerEnv $config
-     */
     public function __construct(
-        private Closure $server,
-        private Closure $router,
-        private Closure $errorHandler,
-        private Closure $config,
+        private SocketHttpServer $server,
+        private Router $router,
+        private ErrorHandler $errorHandler,
+        private HttpServerEnv $config,
     ) {
     }
 
@@ -40,12 +33,10 @@ final readonly class ServerHttp
      */
     public function __invoke(): int
     {
-        $server = ($this->server)();
-        $config = ($this->config)();
-        $server->expose(sprintf('%s:%d', $config->host, $config->port));
-        $server->start(($this->router)(), ($this->errorHandler)());
+        $this->server->expose(sprintf('%s:%d', $this->config->host, $this->config->port));
+        $this->server->start($this->router, $this->errorHandler);
         trapSignal([SIGINT, SIGTERM]);
-        $server->stop();
+        $this->server->stop();
 
         return 0;
     }

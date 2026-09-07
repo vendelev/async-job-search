@@ -69,11 +69,12 @@ final readonly class HttpDi implements Module
         return $dic
             ->object(ServerHttp::class)
             ->args([
-                'server' => $dic->provider($server),
-                'router' => $dic->provider($router),
-                'errorHandler' => $dic->provider($errorHandler),
-                'config' => $dic->provider($config),
+                'server' => $server,
+                'router' => $router,
+                'errorHandler' => $errorHandler,
+                'config' => $config,
             ])
+            ->lazy()
             ->tag(new ConsoleCommandTag());
     }
 }
