@@ -37,7 +37,7 @@ final class VacancyDiscoveryDaemonDiTest extends AppTestCase
                 public function configure(Dic $dic): Ref
                 {
                     $database = $dic->import(new PostgresDi(
-                        static fn(): PostgresEnv => new PostgresEnv(
+                        new PostgresEnv(
                             'postgres',
                             5432,
                             'async_job_search_test',
@@ -50,7 +50,7 @@ final class VacancyDiscoveryDaemonDiTest extends AppTestCase
                     return $dic->import(new VacancyDiscoveryDaemonDi(
                         $database,
                         $logger,
-                        static fn(): HabrCareerEnv => new HabrCareerEnv('test-cookie'),
+                        new HabrCareerEnv('test-cookie'),
                     ));
                 }
             },

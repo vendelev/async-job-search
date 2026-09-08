@@ -26,9 +26,9 @@ final class AppModuleTest extends TestCase
     {
         $commands = Dic::run(
             new AppModule(
-                static fn(): PostgresEnv => new PostgresEnv('postgres', 5432, 'test', 'test', 'test-password'),
-                static fn(): HttpServerEnv => new HttpServerEnv('127.0.0.1', 8080),
-                static fn(): HabrCareerEnv => new HabrCareerEnv('test-cookie'),
+                new PostgresEnv('postgres', 5432, 'test', 'test', 'test-password'),
+                new HttpServerEnv('127.0.0.1', 8080),
+                new HabrCareerEnv('test-cookie'),
             ),
             static function (Application $application): array {
                 self::assertFalse($application->isAutoExitEnabled());

@@ -22,7 +22,7 @@ final class PostgresModuleTest extends TestCase
     {
         async(static function (): void {
             Dic::run(
-                new PostgresDi(static fn(): PostgresEnv => PostgresEnv::fromEnvironment()),
+                new PostgresDi(PostgresEnv::fromEnvironment()),
                 static function (PostgresDatabase $database): void {
                     $result = $database->execute('SELECT 1 AS value');
 

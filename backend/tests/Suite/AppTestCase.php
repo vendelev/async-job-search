@@ -48,7 +48,7 @@ abstract class AppTestCase extends TestCase
                 public function configure(Dic $dic): Ref
                 {
                     $database = $dic->import(new PostgresDi(
-                        static fn(): PostgresEnv => PostgresEnv::fromEnvironment(),
+                        PostgresEnv::fromEnvironment(),
                     ));
                     $migrate = $dic->import(new MigrationDi($database));
                     $dic->import(new EventStoreMigrationDi());
@@ -69,7 +69,7 @@ abstract class AppTestCase extends TestCase
         parent::setUp();
 
         $this->database = Dic::run(
-            new PostgresDi(static fn(): PostgresEnv => self::postgresConfig()),
+            new PostgresDi($this->postgresConfig()),
             static fn(PostgresDatabase $database): PostgresDatabase => $database,
         );
     }
@@ -94,7 +94,7 @@ abstract class AppTestCase extends TestCase
         })->await();
     }
 
-    private static function postgresConfig(): PostgresEnv
+    private function postgresConfig(): PostgresEnv
     {
         return PostgresEnv::fromEnvironment();
     }

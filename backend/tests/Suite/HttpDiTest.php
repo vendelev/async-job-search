@@ -37,7 +37,7 @@ final class HttpDiTest extends AppTestCase
                 public function configure(Dic $dic): Ref
                 {
                     $database = $dic->import(new PostgresDi(
-                        static fn(): PostgresEnv => new PostgresEnv(
+                        new PostgresEnv(
                             'postgres',
                             5432,
                             'async_job_search_test',
@@ -50,7 +50,7 @@ final class HttpDiTest extends AppTestCase
                     return $dic->import(new HttpDi(
                         $database,
                         $logger,
-                        static fn(): HttpServerEnv => new HttpServerEnv('127.0.0.1', 8080),
+                        new HttpServerEnv('127.0.0.1', 8080),
                     ));
                 }
             },

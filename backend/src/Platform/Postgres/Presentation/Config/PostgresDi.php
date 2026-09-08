@@ -8,7 +8,6 @@ use Amp\Postgres\PostgresConfig as AmpPostgresConfig;
 use Amp\Postgres\PostgresConnectionPool;
 use App\Platform\Postgres\Domain\PostgresDatabase;
 use App\Platform\Postgres\Infrastructure\AmpPostgresDatabase;
-use Closure;
 use Thesis\Dic;
 use Thesis\Dic\Module;
 use Thesis\Dic\Ref;
@@ -20,11 +19,8 @@ use function Typhoon\Type\objectT;
  */
 final readonly class PostgresDi implements Module
 {
-    /**
-     * @param Closure(): PostgresEnv $config
-     */
     public function __construct(
-        private Closure $config,
+        private PostgresEnv $config,
     ) {
     }
 
@@ -50,14 +46,12 @@ final readonly class PostgresDi implements Module
      */
     private function createPool(): PostgresConnectionPool
     {
-        $config = ($this->config)();
-
         return new PostgresConnectionPool(new AmpPostgresConfig(
-            $config->host,
-            $config->port,
-            $config->user,
-            $config->password,
-            $config->database,
+            $this->config->host,
+            $this->config->port,
+            $this->config->user,
+            $this->config->password,
+            $this->config->database,
         ));
     }
 }

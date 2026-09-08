@@ -12,7 +12,6 @@ use App\Core\Presentation\Config\ConsoleCommandTag;
 use App\Platform\Postgres\Domain\PostgresDatabase;
 use App\Platform\WebServer\Presentation\Console\ServerHttp;
 use App\VacancyCatalog\Presentation\Config\VacancyCatalogHttpDi;
-use Closure;
 use Psr\Log\LoggerInterface;
 use Thesis\Dic;
 use Thesis\Dic\Module;
@@ -28,12 +27,11 @@ final readonly class HttpDi implements Module
     /**
      * @param Ref<PostgresDatabase> $database
      * @param Ref<LoggerInterface> $logger
-     * @param Closure(): HttpServerEnv $config
      */
     public function __construct(
         private Ref $database,
         private Ref $logger,
-        private Closure $config,
+        private HttpServerEnv $config,
     ) {
     }
 
@@ -44,7 +42,6 @@ final readonly class HttpDi implements Module
      */
     public function configure(Dic $dic): Ref
     {
-        $config = $dic->object(HttpServerEnv::class, $this->config);
         $dic->import(new VacancyCatalogHttpDi($this->database));
 
         $errorHandler = $dic
@@ -72,7 +69,7 @@ final readonly class HttpDi implements Module
                 'server' => $server,
                 'router' => $router,
                 'errorHandler' => $errorHandler,
-                'config' => $config,
+                'config' => $this->config,
             ])
             ->lazy()
             ->tag(new ConsoleCommandTag());

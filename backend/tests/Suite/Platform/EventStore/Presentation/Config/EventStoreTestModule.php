@@ -30,7 +30,7 @@ final readonly class EventStoreTestModule implements Module
      */
     public function configure(Dic $dic): Ref
     {
-        $database = $dic->import(new PostgresDi(fn(): PostgresEnv => $this->config));
+        $database = $dic->import(new PostgresDi($this->config));
 
         return $dic->import(new EventStoreDi($database));
     }

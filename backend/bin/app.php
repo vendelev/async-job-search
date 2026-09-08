@@ -13,9 +13,9 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 
 exit(Dic::run(
     module: new AppModule(
-        static fn(): PostgresEnv => PostgresEnv::fromEnvironment(),
-        static fn(): HttpServerEnv => HttpServerEnv::fromEnvironment(),
-        static fn(): HabrCareerEnv => HabrCareerEnv::fromEnvironment(),
+        PostgresEnv::fromEnvironment(),
+        HttpServerEnv::fromEnvironment(),
+        HabrCareerEnv::fromEnvironment(),
     ),
     main: static fn(Application $application): int => $application->run(),
 ));

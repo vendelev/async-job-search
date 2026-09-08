@@ -16,7 +16,6 @@ use App\VacancyCatalog\Presentation\Config\VacancyCatalogMigrationDi;
 use App\VacancyDiscovery\Presentation\Config\HabrCareerEnv;
 use App\VacancyDiscovery\Presentation\Config\VacancyDiscoveryDaemonDi;
 use App\VacancyDiscovery\Presentation\Config\VacancyDiscoveryMigrationDi;
-use Closure;
 use Symfony\Component\Console\Application;
 use Thesis\Dic;
 use Thesis\Dic\Module;
@@ -27,15 +26,10 @@ use Thesis\Dic\Ref;
  */
 final readonly class AppModule implements Module
 {
-    /**
-     * @param Closure(): PostgresEnv $postgresConfig
-     * @param Closure(): HttpServerEnv $httpConfig
-     * @param Closure(): HabrCareerEnv $habrCareerConfig
-     */
     public function __construct(
-        private Closure $postgresConfig,
-        private Closure $httpConfig,
-        private Closure $habrCareerConfig,
+        private PostgresEnv $postgresConfig,
+        private HttpServerEnv $httpConfig,
+        private HabrCareerEnv $habrCareerConfig,
     ) {
     }
 

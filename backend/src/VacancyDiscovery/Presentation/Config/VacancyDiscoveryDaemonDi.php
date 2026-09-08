@@ -10,7 +10,6 @@ use App\Platform\EventStore\Presentation\Config\EventStoreDi;
 use App\Platform\Postgres\Domain\PostgresDatabase;
 use App\VacancyCatalog\Presentation\Config\VacancyCatalogEventSubscriberDi;
 use App\VacancyDiscovery\Presentation\Console\DiscoverVacanciesDaemon;
-use Closure;
 use Psr\Log\LoggerInterface;
 use Thesis\Dic;
 use Thesis\Dic\Module;
@@ -24,12 +23,11 @@ final readonly class VacancyDiscoveryDaemonDi implements Module
     /**
      * @param Ref<PostgresDatabase> $database
      * @param Ref<LoggerInterface> $logger
-     * @param Closure(): HabrCareerEnv $habrCareerConfig
      */
     public function __construct(
         private Ref $database,
         private Ref $logger,
-        private Closure $habrCareerConfig,
+        private HabrCareerEnv $habrCareerConfig,
     ) {
     }
 

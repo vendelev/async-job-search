@@ -32,7 +32,7 @@ final class MigrateCommandTest extends AppTestCase
                 public function configure(Dic $dic): Ref
                 {
                     $database = $dic->import(new PostgresDi(
-                        static fn(): PostgresEnv => PostgresEnv::fromEnvironment(),
+                        PostgresEnv::fromEnvironment(),
                     ));
                     $migrate = $dic->import(new MigrationDi($database));
                     $dic->import(new EventStoreMigrationDi());
